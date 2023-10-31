@@ -1,10 +1,10 @@
 #version 460
 
-layout(location = 0) out vec4 diffuse_and_seed;
-layout(location = 1) out vec4 normal_and_depth;
+layout(location = 0) out vec4 gbuffer_diffuse;
+layout(location = 1) out vec4 gbuffer_normal;
 
-uniform sampler2D previous_diffuse_and_seed_texture;
-uniform sampler2D previous_normal_and_depth_texture;
+uniform sampler2D previous_diffuse_texture;
+uniform sampler2D previous_normal_texture;
 uniform vec2 u_resolution;
 uniform uint u_frame;
 uniform uint u_frame_seed;
@@ -30,9 +30,9 @@ void main() {
     vec3 color = clamp(pathtrace(ray), 0.0, 255.0);
     if(any(isnan(color))) color = vec3(0);
 
-    vec3 previous_color = texelFetch(previous_diffuse_and_seed_texture, ivec2(gl_FragCoord.xy), 0).rgb;
-    vec3 final_color = mix(previous_color, color, 1.0 / float(u_frame));
+    vec3 previous_color = texelFetch(previous_diffuse_texture, ivec2(gl_FragCoord.xy), 0).rgb;
+    vec3 previous_normal = texelFetch(previous_normal_texture, ivec2(gl_FragCoord.xy), 0).rgb;
 
-	diffuse_and_seed = vec4(final_color, 1.0);
-	normal_and_depth = vec4(0.0, 1.0, 0.0, 1.0);
+	gbuffer_diffuse.rgb = mix(previous_color, color, 1.0 / float(max(u_frame - 1u, 1u)));
+    gbuffer_normal.rgb = mix(previous_normal, gbuffer_normal.rgb, 1.0 / float(max(u_frame - 1u, 1u)));
 }

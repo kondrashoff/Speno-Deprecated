@@ -21,6 +21,7 @@ vec3 pathtrace(in Ray ray) {
     
     for(uint i = 0u; i < camera.max_depth; i++) {
         if(intersectScene(hit, ray)) {
+            if(i == 0) gbuffer_normal.rgb = 0.5 * hit.normal + 0.5;
             scatterLambertian(hit, ray, color, pdf);
         }
         else {
@@ -29,5 +30,5 @@ vec3 pathtrace(in Ray ray) {
         }
     }
 
-    return vec3(0);
+    return (1.0 / float(camera.max_depth)) * 0.5 * color;
 }

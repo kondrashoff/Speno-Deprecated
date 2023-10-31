@@ -38,7 +38,7 @@ public:
 		}
 
 		glfwMakeContextCurrent(window);
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 
 		glfwSetWindowUserPointer(window, this);
 		glfwSetWindowFocusCallback(window, windowFocusCallbackStatic);
@@ -98,8 +98,8 @@ public:
 
 		glUniform2f(resolution_location, static_cast<float>(width), static_cast<float>(height));
 
-		glGenTextures(1, &diffuse_and_seed_texture);
-		glBindTexture(GL_TEXTURE_2D, diffuse_and_seed_texture);
+		glGenTextures(1, &diffuse_texture);
+		glBindTexture(GL_TEXTURE_2D, diffuse_texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -107,8 +107,8 @@ public:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glGenTextures(1, &normal_and_depth_texture);
-		glBindTexture(GL_TEXTURE_2D, normal_and_depth_texture);
+		glGenTextures(1, &normal_texture);
+		glBindTexture(GL_TEXTURE_2D, normal_texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -118,8 +118,8 @@ public:
 
 		glGenFramebuffers(1, &framebuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_and_seed_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_and_depth_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_texture, 0);
 
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -139,8 +139,12 @@ public:
 		scene = other_scene;
 
 		glUseProgram(main_program);
+
 		setupTrianglesSSBO();
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo_triangles);
+
+		setupBVHSSBO();
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_bvh_nodes);
 	}
 
 	void run() {
@@ -159,12 +163,12 @@ public:
 			glUniform1f(delta_time_location, delta_time);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, diffuse_and_seed_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_diffuse_and_seed_texture"), 0);
+			glBindTexture(GL_TEXTURE_2D, diffuse_texture);
+			glUniform1i(glGetUniformLocation(main_program, "previous_diffuse_texture"), 0);
 
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, normal_and_depth_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_normal_and_depth_texture"), 1);
+			glBindTexture(GL_TEXTURE_2D, normal_texture);
+			glUniform1i(glGetUniformLocation(main_program, "previous_normal_texture"), 1);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glEnable(GL_DEPTH_TEST);
@@ -186,12 +190,12 @@ public:
 			glUseProgram(postprocess_program);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, diffuse_and_seed_texture);
-			glUniform1i(glGetUniformLocation(postprocess_program, "diffuse_and_seed_texture"), 0);
+			glBindTexture(GL_TEXTURE_2D, diffuse_texture);
+			glUniform1i(glGetUniformLocation(postprocess_program, "diffuse_texture"), 0);
 
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, normal_and_depth_texture);
-			glUniform1i(glGetUniformLocation(postprocess_program, "normal_and_depth_texture"), 1);
+			glBindTexture(GL_TEXTURE_2D, normal_texture);
+			glUniform1i(glGetUniformLocation(postprocess_program, "normal_texture"), 1);
 
 			glBegin(GL_TRIANGLES);
 			glVertex3f(-1.0f, -1.0f, 0.0f);
@@ -241,6 +245,12 @@ private:
 		glGenBuffers(1, &ssbo_triangles);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_triangles);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Triangle) * scene.triangles.size(), scene.triangles.data(), GL_STATIC_DRAW);
+	}
+	
+	void setupBVHSSBO() {
+		glGenBuffers(1, &ssbo_bvh_nodes);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_bvh_nodes);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(BVH_Node) * scene.bvh_nodes.size(), scene.bvh_nodes.data(), GL_STATIC_DRAW);
 	}
 
 	static void errorCallback(int error, const char* description) {
@@ -330,28 +340,32 @@ private:
 
 	void processCameraMovement() {
 		if (!is_rendering) {
+			float speed = 1.0; 
+			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_RELEASE) speed = 3.146f;
+			else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_RELEASE) speed = 0.318f;
+
 			if (glfwGetKey(window, GLFW_KEY_W) != GLFW_RELEASE) {
-				camera.stepForward(delta_time);
+				camera.stepForward(delta_time * speed);
 				frame = 1;
 			}
 			if (glfwGetKey(window, GLFW_KEY_A) != GLFW_RELEASE) {
-				camera.stepLeft(delta_time);
+				camera.stepLeft(delta_time * speed);
 				frame = 1;
 			}
 			if (glfwGetKey(window, GLFW_KEY_D) != GLFW_RELEASE) {
-				camera.stepRight(delta_time);
+				camera.stepRight(delta_time * speed);
 				frame = 1;
 			}
 			if (glfwGetKey(window, GLFW_KEY_S) != GLFW_RELEASE) {
-				camera.stepBack(delta_time);
+				camera.stepBack(delta_time * speed);
 				frame = 1;
 			}
 			if (glfwGetKey(window, GLFW_KEY_Q) != GLFW_RELEASE) {
-				camera.stepDown(delta_time);
+				camera.stepDown(delta_time * speed);
 				frame = 1;
 			}
 			if (glfwGetKey(window, GLFW_KEY_E) != GLFW_RELEASE) {
-				camera.stepUp(delta_time);
+				camera.stepUp(delta_time * speed);
 				frame = 1;
 			}
 		}
@@ -395,17 +409,17 @@ private:
 
 		frame = 1;
 
-		glBindTexture(GL_TEXTURE_2D, diffuse_and_seed_texture);
+		glBindTexture(GL_TEXTURE_2D, diffuse_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glBindTexture(GL_TEXTURE_2D, normal_and_depth_texture);
+		glBindTexture(GL_TEXTURE_2D, normal_texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_and_seed_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_and_depth_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normal_texture, 0);
 
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -486,6 +500,7 @@ private:
 
 	GLuint ssbo_camera;
 	GLuint ssbo_triangles;
+	GLuint ssbo_bvh_nodes;
 
 	GLuint resolution_location;
 	GLuint frame_location;
@@ -493,8 +508,8 @@ private:
 	GLuint time_location;
 	GLuint delta_time_location;
 
-	GLuint diffuse_and_seed_texture, // RGB - diffuse pathtraced color, A - previous frame seed
-		normal_and_depth_texture;    // RGB - normal,					 A - depth
+	GLuint diffuse_texture, // RGB - diffuse pathtraced color, A - previous frame seed
+		normal_texture;    // RGB - normal,					 A - depth
 
 	GLuint framebuffer;
 

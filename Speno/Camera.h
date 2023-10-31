@@ -3,7 +3,7 @@
 #include "Utils.h"
 
 struct Camera {
-    alignas(16) Vector3 lookfrom = Vector3(0, 0, 0);
+    alignas(16) Vector3 lookfrom = Vector3(260.0, 55.0, 0.0);
     alignas(16) Vector3 lookdir = Vector3(1, 0, 0);
 
     float pitch = 0.0;

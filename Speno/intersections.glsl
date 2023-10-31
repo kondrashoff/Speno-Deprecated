@@ -94,18 +94,96 @@ bool intersectTwoSidedTriangle(inout Hit hit, in Ray ray, in Triangle triangle) 
     return true;
 }
 
-float testAABB(in Ray ray, in AABB aabb) {
-    vec3 rayInvDir = 1.0 / ray.direction;
-    vec3 tbot = rayInvDir * (aabb.min - ray.origin);
-    vec3 ttop = rayInvDir * (aabb.max - ray.origin);
-    vec3 tmin = min(ttop, tbot);
-    vec3 tmax = max(ttop, tbot);
-    vec2 t = max(tmin.xx, tmin.yz);
-    float t0 = max(t.x, t.y);
-    t = min(tmax.xx, tmax.yz);
-    float t1 = min(t.x, t.y);
+bool testAABB(in Ray ray, in AABB aabb, inout Interval ray_t) {
+     for (int a = 0; a < 3; a++) {
+        float invD = 1.0 / ray.direction[a];
+        float orig = ray.origin[a];
 
-    return (t1 > max(t0, 0.0)) ? max(t0, EPSILON) : -1.0;
+        float t0 = (aabb.min[a] - orig) * invD;
+        float t1 = (aabb.max[a] - orig) * invD;
+
+        if (invD < 0.0) {
+            float hash = t0;
+            t0 = t1;
+            t1 = hash;
+        }
+            
+        if (t0 > ray_t.min) ray_t.min = t0;
+        if (t1 < ray_t.max) ray_t.max = t1;
+
+        if (ray_t.max <= ray_t.min)
+            return false;
+    }
+    
+    return true;
+}
+
+#define MAX_BVH_STACK_SIZE 64
+
+bool intersectSceneBVH(inout Hit hit, in Ray ray) {
+    bool is_hit = false;
+    hit.t = MAXIMUM_DISTANCE;
+    
+    int stack[MAX_BVH_STACK_SIZE];
+    int stack_size = 0;
+    int current_node_id = nodes.length() - 1;
+    int attempts = 64;
+
+    Interval ray_t = Interval(-MAXIMUM_DISTANCE, MAXIMUM_DISTANCE);
+    BVH_Node current_node = nodes[current_node_id];
+
+    while (attempts > 0) {
+        current_node = nodes[current_node_id];
+
+        int left_index = current_node.left_id;
+        int right_index = current_node.right_id;
+
+        if(left_index < 0) {
+            int triangle_id = -left_index - 1;
+
+            Triangle triangle = triangles[triangle_id];
+
+            if (intersectTwoSidedTriangle(hit, ray, triangle)) {
+                attempts--;
+                ray_t.max = hit.t;
+
+                hit.color = triangle.color;
+                is_hit = true;
+            }
+            else {
+                if (stack_size <= 0) return is_hit;
+                current_node_id = stack[--stack_size];
+            }
+        }
+        else {
+            BVH_Node left = nodes[left_index];
+            BVH_Node right = nodes[right_index];
+
+            bool hit_left = testAABB(ray, left.aabb, ray_t);
+            
+            Interval hit_ray_t = ray_t;
+            hit_ray_t.max = hit_left ? ray_t.min : ray_t.max;
+            bool hit_right = testAABB(ray, right.aabb, hit_ray_t);
+            if(hit_right) ray_t = hit_ray_t;
+
+            if(hit_left) {
+                if(hit_right) {
+                    current_node_id = right_index;
+                    if(stack_size < MAX_BVH_STACK_SIZE) stack[stack_size++] = left_index;
+                }
+                else {
+                    current_node_id = left_index;
+                    if(stack_size < MAX_BVH_STACK_SIZE) stack[stack_size++] = right_index;
+                }
+            }
+            else {
+                if (stack_size <= 0) return is_hit;
+                current_node_id = stack[--stack_size];
+            }
+        }
+    }
+
+    return is_hit;
 }
 
 bool intersectScene(inout Hit hit, in Ray ray) {
@@ -122,8 +200,6 @@ bool intersectScene(inout Hit hit, in Ray ray) {
             is_hit = true;
         }
     }
-
-    is_hit = intersectSphere(hit, ray, Sphere(vec3(10, 0, 0), 1.0)) || is_hit;
 
     return is_hit;
 }

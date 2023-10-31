@@ -60,7 +60,7 @@
     <None Include="random.glsl" />
     <None Include="structures.glsl" />
     <None Include="functions.glsl" />
-    <None Include="intersections.glsl" />
     <None Include="pathtracing.glsl" />
+    <None Include="intersections.glsl" />
   </ItemGroup>
 </Project>

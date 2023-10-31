@@ -8,6 +8,7 @@ int main(int argc, char** argv) {
 	string filename = "cornell_box.obj";
 
 	Mesh cornell_box(path, filename);
+	cornell_box.buildBVH();
 	speno.setScene(cornell_box);
 
 	speno.run();

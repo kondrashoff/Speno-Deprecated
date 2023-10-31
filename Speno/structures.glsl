@@ -22,6 +22,11 @@ struct Hit {
     vec3  color;
 };
 
+struct Interval {
+    float min;
+    float max;
+};
+
 struct AABB {
     vec3 min;
     vec3 max;
@@ -53,4 +58,8 @@ layout(std430, binding = 0) buffer SSBO_Camera {
 
 layout(std430, binding = 1) buffer SSBO_Triangles {
     Triangle triangles[];
+};
+
+layout(std430, binding = 2) buffer SSBO_BVH_Nodes {
+    BVH_Node nodes[];
 };
