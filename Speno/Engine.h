@@ -42,7 +42,7 @@ public:
 		}
 
 		glfwMakeContextCurrent(window);
-		glfwSwapInterval(0);
+		glfwSwapInterval(1);
 
 		glfwSetWindowUserPointer(window, this);
 		glfwSetWindowFocusCallback(window, windowFocusCallbackStatic);

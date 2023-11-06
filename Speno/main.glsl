@@ -72,11 +72,11 @@ void main() {
           	vec3 old_pos = oldray.origin + oldray.direction * reproj_position.a;
                 
             float ofs = length(old_pos - gbuffer_position.rgb);
-            //if(ofs < REPROJ_DELTA) {
+            if(ofs < REPROJ_DELTA) {
                 gbuffer_diffuse.rgb = reproj_color.rgb + color;
                 gbuffer_diffuse.a   = reproj_color.a   + 1.0;
                 is_reprojected = true;
-            //}
+            }
         }
     }
     
