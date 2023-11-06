@@ -101,17 +101,6 @@ public:
 
         createTrianglesBoundingBoxes();
 
-        int axis = 1;
-        std::vector<const Triangle*> tempTriangles;
-        for (const Triangle& tri : triangles) {
-            tempTriangles.push_back(&tri);
-        }
-        std::sort(tempTriangles.begin(), tempTriangles.end(), [axis](const Triangle* a, const Triangle* b) {
-            Vector3 centerA = (a->v0 + a->v1 + a->v2) / 3.0;
-            Vector3 centerB = (b->v0 + b->v1 + b->v2) / 3.0;
-            return centerA[axis] < centerB[axis];
-            });
-
         if (!triangles.empty()) {
             BVH_Node root = buildBVH(triangles, 0, triangles.size() - 1);
             bvh_nodes.push_back(root);
@@ -147,6 +136,16 @@ private:
         if (start == end) {
             return BVH_Node(triangles[start].bounding_box, -start - 1, -start - 1);
         }
+
+        int axis = rand() % 3;
+        std::vector<const Triangle*> tempTriangles;
+        for (int i = start; i < end; i++) {
+            const Triangle& tri = triangles[i];
+            tempTriangles.push_back(&tri);
+        }
+        std::sort(tempTriangles.begin(), tempTriangles.end(), [axis](const Triangle* a, const Triangle* b) {
+            return a->bounding_box.min[axis] < b->bounding_box.min[axis];
+            });
 
         int mid = (start + end) / 2;
 

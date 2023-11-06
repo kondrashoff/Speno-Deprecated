@@ -1,4 +1,6 @@
-﻿#include "Engine.h"
+﻿//#define DEBUG
+
+#include "Engine.h"
 using namespace std;
 
 int main(int argc, char** argv) {

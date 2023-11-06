@@ -28,3 +28,4 @@ float floatConstruct(uint m) {
 }
 
 float randomFloat() { return floatConstruct(randomUint()); }
+float randomFloat(float min, float max) { return min + randomFloat() * (max - min); }

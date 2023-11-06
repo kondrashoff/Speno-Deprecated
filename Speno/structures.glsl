@@ -13,7 +13,15 @@ struct Camera {
     float fov;
     float camera_speed;
 
-    int max_depth;
+    uint max_depth;
+    uint samples_per_pixel;
+};
+
+struct Sky {
+	int type;
+	vec3 sun_direction;
+	int sun_quality_i;
+	int sun_quality_j;
 };
 
 struct Hit {
@@ -62,4 +70,12 @@ layout(std430, binding = 1) buffer SSBO_Triangles {
 
 layout(std430, binding = 2) buffer SSBO_BVH_Nodes {
     BVH_Node nodes[];
+};
+
+layout(std430, binding = 3) buffer SSBO_Sky {
+    Sky sky;
+};
+
+layout(std430, binding = 4) buffer SSBO_Old_Camera {
+    Camera old_camera;
 };

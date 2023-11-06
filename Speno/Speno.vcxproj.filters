@@ -52,6 +52,9 @@
     <ClInclude Include="Mesh.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="Sky.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertex.glsl" />
@@ -62,5 +65,7 @@
     <None Include="functions.glsl" />
     <None Include="pathtracing.glsl" />
     <None Include="intersections.glsl" />
+    <None Include="sky.glsl" />
+    <None Include="noise.glsl" />
   </ItemGroup>
 </Project>
