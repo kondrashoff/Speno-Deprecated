@@ -23,14 +23,15 @@ uniform uint u_frame_seed;
 uniform float u_time;
 uniform float u_delta_time;
 
-#define SKY_TYPE_DEFAULT 0
-#define SKY_TYPE_REALISTIC 1
+#define SKY_TYPE_BLACK     0
+#define SKY_TYPE_DEFAULT   1
+#define SKY_TYPE_REALISTIC 2
 
-#define PI 3.14159265
-#define TAU 6.28318531
-#define EPSILON 0.002
-#define REPROJ_DELTA 0.01
-#define MAXIMUM_DISTANCE 16777215.0
+#define PI                 3.14159265
+#define TAU                6.28318531
+#define EPSILON            0.002
+#define REPROJ_DELTA       0.5
+#define MAXIMUM_DISTANCE   16777215.0
 #define MAX_BVH_STACK_SIZE 23
 
 #include "structures.glsl"
@@ -42,11 +43,6 @@ uniform float u_delta_time;
 #include "pathtracing.glsl"
 
 void main() {
-    if(u_time < 7.5) {
-        gbuffer_diffuse = getLoadingScreen();
-        return;
-    }
-
     setRootRandomSeed();
 
     vec3 color = vec3(0);
@@ -58,29 +54,47 @@ void main() {
     }
     color /= float(camera.samples_per_pixel);
 
-    vec2 reproj_uv = getUV(old_camera, gbuffer_position.rgb);
-    reproj_uv.x /= u_resolution.x / u_resolution.y;
-    reproj_uv = (1.0 + reproj_uv) * 0.5;
+    if(u_frame < 0u) {
+        vec2 reproj_uv = getUV(old_camera, gbuffer_position.rgb);
+        reproj_uv.x /= u_resolution.x / u_resolution.y;
+        reproj_uv = (1.0 + reproj_uv) * 0.5;
        
-    bool is_reprojected = false;
-    if(reproj_uv.x >= 0.0 && reproj_uv.x <= 1.0 && reproj_uv.y >= 0.0 && reproj_uv.y <+ 1.0) {
-        vec4 reproj_color    = texture(previous_diffuse_texture,  reproj_uv, 0);
-        vec4 reproj_position = texture(previous_position_texture, reproj_uv, 0);
+        bool is_reprojected = false;
+        if(reproj_uv.x >= 0.0 && reproj_uv.x <= 1.0 && reproj_uv.y >= 0.0 && reproj_uv.y <+ 1.0) {
+            vec4 reproj_color    = texture(previous_diffuse_texture,  reproj_uv, 0);
+            vec4 reproj_position = texture(previous_position_texture, reproj_uv, 0);
 
-        if(reproj_position.a >= 0.0) {
-            Ray oldray = getRay(old_camera, reproj_uv);
-          	vec3 old_pos = oldray.origin + oldray.direction * reproj_position.a;
+            if(reproj_position.a >= 0.0) {
+                Ray oldray = getRay(old_camera, reproj_uv);
+          	    vec3 old_pos = oldray.origin + oldray.direction * reproj_position.a;
                 
-            float ofs = length(old_pos - gbuffer_position.rgb);
-            if(ofs < REPROJ_DELTA) {
-                gbuffer_diffuse.rgb = reproj_color.rgb + color;
-                gbuffer_diffuse.a   = reproj_color.a   + 1.0;
-                is_reprojected = true;
+                float ofs = length(old_pos - gbuffer_position.rgb);
+                if(ofs < REPROJ_DELTA) {
+                    if(gbuffer_diffuse.a < 1.0 / u_delta_time) {
+                        gbuffer_diffuse.rgb = reproj_color.rgb + color;
+                        gbuffer_diffuse.a   = reproj_color.a   + 1.0;
+                    }
+                    is_reprojected = true;
+                }
             }
         }
-    }
     
-    if(!is_reprojected) {
-        gbuffer_diffuse = vec4(color, 1.0);
+        if(!is_reprojected) {
+            gbuffer_diffuse = vec4(color, 1.0);
+        }
+    }
+    else {
+        float samples = 1.0 / max(1.0, float(u_frame - 1u));
+        
+        vec3 previous_color    = texelFetch(previous_diffuse_texture,  ivec2(gl_FragCoord.xy), 0).rgb;
+        vec3 previous_albedo   = texelFetch(previous_albedo_texture,   ivec2(gl_FragCoord.xy), 0).rgb;
+        vec3 previous_normal   = texelFetch(previous_normal_texture,   ivec2(gl_FragCoord.xy), 0).rgb;
+        vec3 previous_position = texelFetch(previous_position_texture, ivec2(gl_FragCoord.xy), 0).rgb;
+
+        gbuffer_diffuse.a     = 1.0;
+	    gbuffer_diffuse.rgb   = mix(previous_color,    color,                samples);
+        gbuffer_albedo.rgb    = mix(previous_albedo,   gbuffer_albedo.rgb,   samples);
+        gbuffer_normal.rgb    = mix(previous_normal,   gbuffer_normal.rgb,   samples);
+        gbuffer_position.rgb  = mix(previous_position, gbuffer_position.rgb, samples);
     }
 }

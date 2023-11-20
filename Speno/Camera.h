@@ -3,16 +3,18 @@
 #include "Utils.h"
 
 struct Camera {
-    alignas(16) Vector3 lookfrom = Vector3(0.0, 256.0, 0.0);
+    alignas(16) Vector3 lookfrom = Vector3(-1.0, 256.0, -1.0);
     alignas(16) Vector3 lookdir = Vector3(1, 0, 0);
 
-    float pitch = 0.0;
-    float yaw = 0.0;
-    
-    float fov = 60.0;
-    float camera_speed = 25.0;
+    //-703.094 29.8835 -1378.95 pitch: 6.83332 yaw: -348.844
 
-    unsigned int max_depth = 4;
+    float pitch = 6.83332f;
+    float yaw = -348.844f;
+    
+    float fov = 60.0f;
+    float camera_speed = 25.0f;
+
+    unsigned int max_depth = 3;
     unsigned int samples_per_pixel = 1;
 
     void buildFromRotations() {

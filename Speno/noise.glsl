@@ -5,6 +5,10 @@ vec2 fade(vec2 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
 vec3 fade(vec3 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
 vec4 fade(vec4 t) {return t*t*t*(t*(t*6.0-15.0)+10.0);}
 
+float hash(vec3 p) {
+    return fract(sin(dot(p,vec3(127.1,311.7, 74.7)))*43758.5453123);
+}
+
 //	Classic Perlin 2D Noise 
 //	by Stefan Gustavson
 //
@@ -378,4 +382,73 @@ float perlin_noise(vec4 P, vec4 rep){
   vec2 n_yzw = mix(n_zw.xy, n_zw.zw, fade_xyzw.y);
   float n_xyzw = mix(n_yzw.x, n_yzw.y, fade_xyzw.x);
   return 2.2 * n_xyzw;
+}
+
+vec4 gradient_noise(vec3 x) {
+	// https://iquilezles.org/articles/gradientnoise
+    vec3 p = floor(x);
+    vec3 w = fract(x);
+    
+    vec3 u = w*w*w*(w*(w*6.0-15.0)+10.0);
+    vec3 du = 30.0*w*w*(w*(w-2.0)+1.0);
+
+    float a = hash( p+vec3(0,0,0) );
+    float b = hash( p+vec3(1,0,0) );
+    float c = hash( p+vec3(0,1,0) );
+    float d = hash( p+vec3(1,1,0) );
+    float e = hash( p+vec3(0,0,1) );
+    float f = hash( p+vec3(1,0,1) );
+    float g = hash( p+vec3(0,1,1) );
+    float h = hash( p+vec3(1,1,1) );
+
+    float k0 =   a;
+    float k1 =   b - a;
+    float k2 =   c - a;
+    float k3 =   e - a;
+    float k4 =   a - b - c + d;
+    float k5 =   a - c - e + g;
+    float k6 =   a - b - e + f;
+    float k7 = - a + b + c - d + e - f - g + h;
+
+    return vec4( -1.0+2.0*(k0 + k1*u.x + k2*u.y + k3*u.z + k4*u.x*u.y + k5*u.y*u.z + k6*u.z*u.x + k7*u.x*u.y*u.z), 
+                      2.0* du * vec3( k1 + k4*u.y + k6*u.z + k7*u.y*u.z,
+                                      k2 + k5*u.z + k4*u.x + k7*u.z*u.x,
+                                      k3 + k6*u.x + k5*u.y + k7*u.x*u.y ) ).yzwx;
+}
+
+float fbm(vec2 x, int num_octaves) {
+	float v = 0.0;
+	float a = 0.5;
+	vec2 shift = vec2(100);
+    mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
+	for (int i = 0; i < num_octaves; ++i) {
+		v += a * perlin_noise(x);
+		x = rot * x * 2.0 + shift;
+		a *= 0.5;
+	}
+	return v;
+}
+
+float fbm(vec3 x, int num_octaves) {
+	float v = 0.0;
+	float a = 0.5;
+	vec3 shift = vec3(100);
+	for (int i = 0; i < num_octaves; ++i) {
+		v += a * perlin_noise(x);
+		x = x * 2.0 + shift;
+		a *= 0.5;
+	}
+	return v;
+}
+
+float fbm(vec4 x, int num_octaves) {
+	float v = 0.0;
+	float a = 0.5;
+	vec4 shift = vec4(100);
+	for (int i = 0; i < num_octaves; ++i) {
+		v += a * perlin_noise(x);
+		x = x * 2.0 + shift;
+		a *= 0.5;
+	}
+	return v;
 }

@@ -9,6 +9,16 @@ void scatterLambertian(in Hit hit, inout Ray ray, inout vec3 color, inout float 
     pdf = scattering_pdf;
 }
 
+void scatterVolume(in Hit hit, inout Ray ray, inout vec3 color, inout float pdf) {
+    ray.origin += ray.direction * (hit.t - EPSILON);
+
+    ray.direction = randomOnSphere();
+    float scattering_pdf = 1.0 / (4.0 * PI);
+
+    color = (color * scattering_pdf * hit.color) / pdf;
+    pdf = scattering_pdf;
+}
+
 bool scatterSphereLight(in Hit hit, inout Ray ray, inout vec3 color, inout float pdf, in Sphere light_sphere) {
     ray.origin += ray.direction * (hit.t - EPSILON);
 
@@ -67,9 +77,10 @@ bool scatterSkyLight(in Hit hit, inout Ray ray, inout vec3 color, inout float pd
     
     float distance_squared = light_hit.t * light_hit.t;
     float light_cosine = abs(dot(light_hit.normal, -to_light));
-    float light_area = sphereArea(sun) * 10000.0;
+    float light_area = sphereArea(sun) * 6500.0;
 
-    light_pdf = max(0.0, distance_squared / (light_cosine * light_area));
+    light_pdf = distance_squared / (light_cosine * light_area);
+    if(light_pdf < EPSILON) return false;
    
     ray.direction = to_light;
     scattering_pdf = scatteringPdf(ray.direction, hit.normal);
@@ -89,7 +100,7 @@ vec3 pathtrace(in Ray ray) {
     uint possible_colors = 0u;
     
     for(uint i = 0u; i < camera.max_depth; i++) {
-        if(intersectScene3DDA(hit, ray)) {
+        if(intersectScene3DDAtest3(hit, ray)) {
             if(i == 0) {
                 gbuffer_albedo.rgb = hit.color;
                 gbuffer_normal.rgb = hit.normal;
@@ -97,18 +108,57 @@ vec3 pathtrace(in Ray ray) {
                 gbuffer_position.a = hit.t;
             }
 
+            if(is_light) {
+                return getFinalColor(color, pdf, hit.color, possible_color, possible_colors);
+            }
+
             Hit light_hit = hit;
             Ray light_ray = ray;
             vec3 light_color = color;
             float light_pdf = pdf;
 
-            if(sky.type == SKY_TYPE_REALISTIC && scatterSkyLight(light_hit, light_ray, light_color, light_pdf) && !intersectScene3DDA(light_hit, light_ray)) {
+            if(sky.type == SKY_TYPE_REALISTIC && scatterSkyLight(light_hit, light_ray, light_color, light_pdf) && !intersectScene3DDAtest3(light_hit, light_ray)) {
                 vec3 c = (light_color * getSkyColor(light_ray)) / light_pdf;
+                 // TODO: можно перенести эту проверку прямо в scatteSkyLight(), используя light_contribution, 
+                 // это будет быстрее работать, 
+                 // ещё нужно не забыть добавить переменную, в которую можно будет поместить значение getSkyColor()
                 if((c.r + c.g + c.b) * 0.33333333 > (color.r + color.g + color.b) * 0.16666667) {
                     possible_color += c;
                     possible_colors++;
+
+                    if(is_volume) return getFinalColor(possible_color, possible_colors);
                 }
             }
+            
+            /*Hit camera_hit = hit;
+            vec3 pos = ray.origin + ray.direction * (hit.t - EPSILON);
+            vec3 to_camera = camera.lookfrom - pos;
+            float distance_squared = dot(to_camera, to_camera);
+            to_camera = normalize(to_camera);
+            vec3 camera_flashlight_color = vec3(10000, 8463, 7098);
+
+            if(dot(to_camera, hit.normal) > EPSILON) {
+                intersectScene3DDAtest2(camera_hit, Ray(pos, to_camera));
+
+                if(camera_hit.t > sqrt(distance_squared)) {
+                    float scattering_pdf = 0.0;
+                    float light_pdf = 0.0;
+    
+                    float light_cosine = dot(-camera.lookdir, to_camera);
+                    light_pdf = distance_squared / pow(light_cosine, 64.0);
+
+                    if(light_pdf > EPSILON) {
+                        scattering_pdf = scatteringPdf(to_camera, hit.normal);
+                        vec3 color2 = (color * scattering_pdf * hit.color) / pdf;
+                        float pdf2 = light_pdf;
+                    
+                        possible_color += (color2 * camera_flashlight_color) / pdf2;
+                        possible_colors++;
+
+                        if(is_volume) return getFinalColor(possible_color, possible_colors);
+                    }
+                }
+            }*/
 
             scatterLambertian(hit, ray, color, pdf);
         }

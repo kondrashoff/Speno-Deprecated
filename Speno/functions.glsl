@@ -96,6 +96,7 @@ Ray getRay() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
     uv = 2.0*uv - 1.0;
+    if(u_frame > 1u) uv += pixelSampleSquare();
     uv.x *= u_resolution.x / u_resolution.y;
 
     float tan_half_fov = tan(radians(camera.fov / 2.0));
@@ -181,17 +182,4 @@ vec3 getFinalColor(in vec3 color) {
     if(any(isnan(final_color))) final_color = vec3(0.0);
 
     return final_color;
-}
-
-vec4 getLoadingScreen() {
-    vec2 vec = gl_FragCoord.xy - 0.5 * u_resolution.xy;
-    float dist = length(vec);
-    float angle = atan(vec.x,vec.y) / (PI*0.25);
-    float frac = fract(angle);
-    float light = sign(angle - frac+4.0 - floor(mod(u_time * 10.0, 8.0)));
-
-    float a = smoothstep(100.0, 97.0, dist) * smoothstep(47.0, 50.0, dist) * 0.5*smoothstep(0.0, 0.05, frac) * smoothstep(1.0, 0.95, frac);
-    a += a * (-abs(light) + 1.0);
-
-    return vec4(a);
 }

@@ -8,15 +8,14 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include "Denoiser.h"
 #include "Mesh.h"
 #include "Camera.h"
 #include "Sky.h"
+#include "BlockWorld.h"
 
 class Engine {
 public:
@@ -94,6 +93,8 @@ public:
 		int width, height;
 		glfwGetFramebufferSize(window, &width, &height);
 
+		pathtracing_denoiser = Denoiser(width, height);
+
 		setupCameraSSBO();
 		setupOldCameraSSBO();
 		setupSkySSBO();
@@ -107,7 +108,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 		int texture_width, texture_height, num_channels;
-		unsigned char* data = stbi_load("Textures/heightmaps/heightmap Canyon.png", &texture_width, &texture_height, &num_channels, STBI_rgb_alpha);
+		unsigned char* data = stbi_load("Textures/heightmaps/heightmap Mountain 3.png", &texture_width, &texture_height, &num_channels, STBI_rgb_alpha);
 		if (!data) {
 			std::cerr << "Failed to load texture: " << "map" << std::endl;
 			exit(EXIT_FAILURE);
@@ -147,7 +148,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		data = stbi_load("Textures/red_sandstone_top.png", &texture_width, &texture_height, &num_channels, STBI_rgb);
+		data = stbi_load("Textures/grass_top.png", &texture_width, &texture_height, &num_channels, STBI_rgb);
 		if (!data) {
 			std::cerr << "Failed to load texture: " << "grass_top.png" << std::endl;
 			exit(EXIT_FAILURE);
@@ -164,7 +165,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		data = stbi_load("Textures/red_sandstone_normal.png", &texture_width, &texture_height, &num_channels, STBI_rgb);
+		data = stbi_load("Textures/grass_side.png", &texture_width, &texture_height, &num_channels, STBI_rgb);
 		if (!data) {
 			std::cerr << "Failed to load texture: " << "grass_side.png" << std::endl;
 			exit(EXIT_FAILURE);
@@ -184,7 +185,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		data = stbi_load("Textures/sand.png", &texture_width, &texture_height, &num_channels, STBI_rgb);
+		data = stbi_load("Textures/dirt.png", &texture_width, &texture_height, &num_channels, STBI_rgb);
 		if (!data) {
 			std::cerr << "Failed to load texture: " << "dirt.png" << std::endl;
 			exit(EXIT_FAILURE);
@@ -194,9 +195,9 @@ public:
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		resolution_location = glGetUniformLocation(main_program, "u_resolution");
-		frame_location = glGetUniformLocation(main_program, "u_frame");
+		frame_location      = glGetUniformLocation(main_program, "u_frame");
 		frame_seed_location = glGetUniformLocation(main_program, "u_frame_seed");
-		time_location = glGetUniformLocation(main_program, "u_time");
+		time_location       = glGetUniformLocation(main_program, "u_time");
 		delta_time_location = glGetUniformLocation(main_program, "u_delta_time");
 
 		glUniform2f(resolution_location, static_cast<float>(width), static_cast<float>(height));
@@ -207,7 +208,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glGenTextures(1, &albedo_texture);
@@ -216,7 +217,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glGenTextures(1, &normal_texture);
@@ -225,7 +226,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glGenTextures(1, &position_texture);
@@ -234,7 +235,7 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glGenFramebuffers(1, &framebuffer);
@@ -265,8 +266,34 @@ public:
 		setupBVHSSBO();
 	}
 
+	void generateChunks(unsigned int seed = 0) {
+		Perfomance chunks_perf_monitor;
+
+		chunks_perf_monitor.start();
+		for (int x = 0; x < world.generation_distance; x++) {
+			for (int z = 0; z < world.generation_distance; z++) {
+				Perfomance chunk_perf_monitor;
+				chunk_perf_monitor.start();
+
+				Chunk generated_chunk;
+				generated_chunk.generate(seed, x * 16, z * 16);
+				world.chunks.push_back(generated_chunk);
+
+				chunk_perf_monitor.stop();
+				std::cout << "Chunk[" << x << "][" << z << "] generated. " << chunk_perf_monitor << std::endl;
+			}
+		}
+		chunks_perf_monitor.stop();
+
+		std::cout << "Chunks generated. " << chunks_perf_monitor << std::endl;
+
+		setupChunksSSBO();
+	}
+
 	void run() {
 		while (!glfwWindowShouldClose(window)) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 			glUseProgram(main_program);
 
 			time = (float)glfwGetTime();
@@ -320,7 +347,6 @@ public:
 			glUniform1i(glGetUniformLocation(main_program, "dirt_texture"), 8);
 
 			glEnable(GL_DEPTH_TEST);
-
 			glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 			glBegin(GL_TRIANGLES);
@@ -374,8 +400,6 @@ public:
 			glfwPollEvents();
 
 			delta_time = (float)glfwGetTime() - time;
-
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
 	}
 
@@ -384,6 +408,8 @@ public:
 
 		glfwDestroyWindow(window);
 		glfwTerminate();
+
+		std::cerr << "position: " << camera.lookfrom << " pitch: " << camera.pitch << " yaw: " << camera.yaw << std::endl;
 
 		std::cerr << "Engine process ended successfully!";
 	}
@@ -409,6 +435,13 @@ private:
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_sky);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sky), &sky, GL_STATIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_sky);
+	}
+	
+	void setupChunksSSBO() {
+		glGenBuffers(1, &ssbo_chunks);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_chunks);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Chunk) * world.chunks.size(), world.chunks.data(), GL_STATIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssbo_chunks);
 	}
 	
 	void setupTrianglesSSBO() {
@@ -477,6 +510,7 @@ private:
 				std::strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", std::localtime(&now));
 				std::string filename = "C:/GAMES/screenshot_" + std::string(timestamp) + ".png";
 
+				stbi_flip_vertically_on_write(1);
 				if (stbi_write_png(filename.c_str(), width, height, 3, pixels, 0)) {
 					std::clog << "Successfully saved screenshot to: " << filename << std::endl;
 				}
@@ -507,9 +541,9 @@ private:
 
 	void processCameraMovement() {
 		if (!is_rendering) {
-			float speed = 1.0; 
-			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_RELEASE) speed = 3.146f;
-			else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_RELEASE) speed = 0.318f;
+			float speed = 0.5;
+			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_RELEASE) speed *= 3.146f;
+			else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_RELEASE) speed *= 0.318f;
 
 			if (glfwGetKey(window, GLFW_KEY_W) != GLFW_RELEASE) {
 				camera.stepForward(delta_time * speed);
@@ -540,14 +574,40 @@ private:
 				int centerX = width / 2;
 				int centerY = height / 2;
 
-				float x_velocity = (centerX - (float)mouse_xpos) / width * 90.0f;
-				float y_velocity = (centerY - (float)mouse_ypos) / height * 90.0f;
+				float x_velocity = (centerX - (float)mouse_xpos) / width * 45.0f;
+				float y_velocity = (centerY - (float)mouse_ypos) / height * 45.0f;
 
 				camera.pitch += y_velocity;
 				camera.pitch = std::clamp(camera.pitch, -90.0f, 90.0f);
 				camera.yaw += x_velocity;
 
 				glfwSetCursorPos(window, centerX, centerY);
+			}
+
+			if (sky.type == SKY_TYPE_REALISTIC) {
+				bool pass_new_value = false;
+
+				if (glfwGetKey(window, GLFW_KEY_UP) != GLFW_RELEASE) {
+					sky = Sky(sky.pitch + delta_time * speed, sky.yaw);
+					pass_new_value = true;
+				}
+				if (glfwGetKey(window, GLFW_KEY_DOWN) != GLFW_RELEASE) {
+					sky = Sky(sky.pitch - delta_time * speed, sky.yaw);
+					pass_new_value = true;
+				}
+				if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_RELEASE) {
+					sky = Sky(sky.pitch, sky.yaw - delta_time * speed);
+					pass_new_value = true;
+				}
+				if (glfwGetKey(window, GLFW_KEY_RIGHT) != GLFW_RELEASE) {
+					sky = Sky(sky.pitch, sky.yaw + delta_time * speed);
+					pass_new_value = true;
+				}
+
+				if (pass_new_value) {
+					glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_sky);
+					glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sky), &sky);
+				}
 			}
 		}
 	}
@@ -653,13 +713,16 @@ private:
 	bool is_rendering = false;
 
 	Mesh scene;
+	BlockWorld world; 
+	Denoiser pathtracing_denoiser;
 	Camera camera;
 	Camera old_camera;
-	Sky sky = Sky(30.0, 30.0);
+	Sky sky = Sky(45.0, 60.0);
 
 	GLuint ssbo_camera;
 	GLuint ssbo_old_camera;
 	GLuint ssbo_sky;
+	GLuint ssbo_chunks;
 	GLuint ssbo_triangles;
 	GLuint ssbo_bvh_nodes;
 

@@ -22,12 +22,14 @@ struct Sky {
 	vec3 sun_direction;
 	int sun_quality_i;
 	int sun_quality_j;
+    float pitch;
+    float yaw;
 };
 
 struct Hit {
     float t;
-    vec3  normal;
-    vec3  color;
+    vec3 normal;
+    vec3 color;
 };
 
 struct Interval {
@@ -60,6 +62,10 @@ struct Triangle {
     AABB bounding_box;
 };
 
+struct Chunk {
+    int block[16][255][16];
+};
+
 layout(std430, binding = 0) buffer SSBO_Camera {
     Camera camera;
 };
@@ -78,4 +84,8 @@ layout(std430, binding = 3) buffer SSBO_Sky {
 
 layout(std430, binding = 4) buffer SSBO_Old_Camera {
     Camera old_camera;
+};
+
+layout(std430, binding = 5) buffer SSBO_Blocks {
+    Chunk chunks[];
 };

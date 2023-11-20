@@ -21,12 +21,60 @@
     <ClCompile Include="Speno.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="BlockWorld.h">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\Binaries\glew32.dll">
       <Filter>Binaries</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="..\Binaries\glfw3.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\tbbbind_2_5.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_core.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_cpu.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_cuda.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_hip.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_sycl.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_sycl_xehpg.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_sycl_xelp.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\pi_level_zero.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\pi_win_proxy_loader.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\sycl7.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\tbb12.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\tbbbind.dll">
+      <Filter>Binaries</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binaries\tbbbind_2_0.dll">
       <Filter>Binaries</Filter>
     </CopyFileToFolders>
   </ItemGroup>
@@ -53,6 +101,12 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="Sky.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Denoiser.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="PerlinNoise.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

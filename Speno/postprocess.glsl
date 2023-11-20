@@ -6,6 +6,7 @@ uniform sampler2D diffuse_texture;
 uniform sampler2D albedo_texture;
 uniform sampler2D normal_texture;
 uniform sampler2D position_texture;
+uniform sampler2D previous_frame;
 
 vec3 clamp_color(in vec3 color) {
 	float maximum = max(color.r, max(color.g, color.b));
@@ -69,6 +70,21 @@ vec3 sRGB(vec3 color) {
     vec3 lower = color * vec3(12.92);
 
     return mix(higher, lower, cutoff);
+}
+
+vec3 gaussianBlur(sampler2D sampler, vec2 pos) {
+    mat3 kernel = mat3(1, 2, 1, 2, 4, 2, 1, 2, 1);
+    ivec2 ipos = ivec2(pos);
+    float coef = 1.0 / 16.0;
+    vec3 color = vec3(0);
+
+    for(uint x = 0u; x < 3u; x++) {
+        for(uint y = 0u; y < 3u; y++) {
+            color += kernel[x][y] * texelFetch(sampler, ipos + ivec2(x, y) - 1, 0).rgb;
+        }
+    }
+
+    return coef * color;
 }
 
 vec3 denoise(float denoiseStrength) {
@@ -139,7 +155,7 @@ vec3 denoise(float denoiseStrength) {
     float c_phi = 1.0;
     float n_phi = 0.5;
     float p_phi = 0.3;
-	vec3 cval = texelFetch(diffuse_texture, ivec2(gl_FragCoord.xy), 0).rgb;
+	vec3 cval = gaussianBlur(diffuse_texture, gl_FragCoord.xy);
 	vec3 nval = texelFetch(normal_texture, ivec2(gl_FragCoord.xy), 0).rgb;
 	vec3 pval = texelFetch(position_texture, ivec2(gl_FragCoord.xy), 0).rgb;
     
@@ -148,7 +164,7 @@ vec3 denoise(float denoiseStrength) {
     {
         vec2 uv = gl_FragCoord.xy+offset[i]*denoiseStrength;
         
-        vec3 ctmp = texelFetch(diffuse_texture, ivec2(uv), 0).rgb;
+        vec3 ctmp = gaussianBlur(diffuse_texture, uv);
         vec3 t = cval - ctmp;
         float dist2 = dot(t,t);
         float c_w = min(exp(-(dist2) / c_phi), 1.0);
@@ -172,14 +188,16 @@ vec3 denoise(float denoiseStrength) {
 }
 
 void main() {
-	vec4 data = texelFetch(diffuse_texture, ivec2(gl_FragCoord.xy), 0);
-    vec3 color = data.rgb / data.w;
-    //vec3 color = denoise(1.0) / texelFetch(diffuse_texture, ivec2(gl_FragCoord.xy), 0).a;
-	
-    color = whitePreservingLumaBasedReinhardToneMapping(color);
-	//color = clamp_color(color);
-	color = ACESFitted(color);
+    vec2 uv = gl_FragCoord.xy / textureSize(diffuse_texture, 0);
+	//vec4 data = texture(diffuse_texture, uv);
+
+    //vec3 color = data.rgb / data.w;
+    vec3 color = denoise(9.0) / texture(diffuse_texture, uv).a;
+
     color = sRGB(color);
+    color = ACESFitted(color);
+    
+    color *= vec3(1.0) * smoothstep(1.8, 0.5, length(uv * 2.0 - 1.0)) * 0.25 + 0.75;
 	
 	FragColor = vec4(color, 1.0);
 }

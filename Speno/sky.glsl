@@ -106,7 +106,10 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
 }
 
 vec3 getSkyColor(in Ray ray) {
-	if(sky.type == SKY_TYPE_DEFAULT) {
+    if(sky.type == SKY_TYPE_BLACK) {
+        return vec3(0);
+    }
+	else if(sky.type == SKY_TYPE_DEFAULT) {
         return vec3(0.7, 0.8, 1.0) * min(1.0, 1.0 + dot(ray.direction, vec3(0, 1, 0)));
     }
     else if(sky.type == SKY_TYPE_REALISTIC) {
@@ -124,7 +127,7 @@ vec3 getSkyColor(in Ray ray) {
             0.9999                          // Mie preferred scattering direction
         );
 
-        return 5.0 - 5.0 * exp(-0.2 * color);
+        return 10.0 - 10.0 * exp(-0.1 * color);
     }
     
     return vec3(1, 0, 0);

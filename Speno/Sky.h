@@ -2,20 +2,26 @@
 
 #include "Utils.h"
 
-#define SKY_TYPE_DEFAULT 0
-#define SKY_TYPE_REALISTIC 1
+#define SKY_TYPE_BLACK     0
+#define SKY_TYPE_DEFAULT   1
+#define SKY_TYPE_REALISTIC 2
 
 struct Sky {
 	int type = SKY_TYPE_DEFAULT;
 	alignas(16) Vector3 sun_direction;
 	int sun_quality_i = 16;
 	int sun_quality_j = 8;
+	float pitch;
+	float yaw;
 
 	Sky() {
 		sun_direction = Vector3(0, 1, 0);
 	}
 
-	Sky(float yaw, float pitch) {
+	Sky(float other_pitch, float other_yaw) {
+		pitch = other_pitch;
+		yaw = other_yaw;
+
 		type = SKY_TYPE_REALISTIC;
 
 		Vector3 direction;
