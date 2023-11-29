@@ -1,15 +1,53 @@
+vec2 spherical_map(vec3 p) {
+    vec2 uv = vec2(atan(p.z, p.x), asin(p.y));
+    uv *= vec2(1.0 / TAU, 1.0 / PI); uv += 0.5;
+    return uv;
+}
+
+vec3 spherical_map(vec2 uv) {
+    uv -= 0.5; uv *= vec2(TAU, PI);
+    vec2 s = sin(uv), c = cos(uv);
+    return vec3(c.x*c.y, s.y, s.x*c.y);
+}
+
 vec2 pixelSampleSquare() {
-    return (2.0 * vec2(randomFloat(), randomFloat()) - 1.0) / min(u_resolution.x, u_resolution.y);
+    /*if(u_samples < 65u) {
+        vec2 r = texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg;
+        
+        bool cond1 = all(greaterThan(r, vec2(EPSILON)));
+        bool cond2 = all(lessThan(r, vec2(1.0 - EPSILON)));
+        if(cond1 && cond2) return (2.0 * r - 1.0) / min(u_resolution.x, u_resolution.y);
+    }*/
+
+    return (2.0 * randomVec2() - 1.0) / min(u_resolution.x, u_resolution.y);
 }
 
 vec2 randomInUnitDisk() {
+    /*if(u_samples < 65u) {
+        vec2 r = 2.0 * texelFetch(stbn_unitvec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec2_shift++) % 64) % 128, 0).rg - 1.0;
+
+        bool cond1 = all(greaterThan(r, vec2(EPSILON)));
+        bool cond2 = all(lessThan(r, vec2(1.0 - EPSILON)));
+        if(cond1 && cond2) return r;
+    }*/
+
     float r = sqrt(randomFloat());
     float phi = TAU*randomFloat();
 
     return vec2(r * sin(phi), r * cos(phi));
 }
 
+
+// This is a new version with blue noise
 vec3 randomOnSphere() {
+    /*if(u_samples < 65u) {
+        vec3 r = 2.0 * texelFetch(stbn_unitvec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec3_shift++) % 64) % 128, 0).rgb - 1.0;
+    
+        bool cond1 = all(greaterThan(r, vec3(EPSILON)));
+        bool cond2 = all(lessThan(r, vec3(1.0 - EPSILON)));
+        if(cond1 && cond2) return r;
+    }*/
+
     float r1 = randomFloat();
     float r2 = randomFloat();
 
@@ -29,36 +67,18 @@ vec3 sampleSphere(Sphere sphere) {
 }
 
 vec3 sampleBox(AABB box) {
-    vec3 v;
-    v.x = randomFloat(box.min.x, box.max.x);
-    v.y = randomFloat(box.min.y, box.max.y);
-    v.z = randomFloat(box.min.z, box.max.z);
-    return v;
+    return box.min + randomVec3() * (box.max - box.min);
 }
 
 vec3 randomCosineDirection() {
-    float r1 = randomFloat();
-    float r2 = randomFloat();
-
-    float phi = TAU*r1;
-    float x = cos(phi)*sqrt(r2);
-    float y = sin(phi)*sqrt(r2);
-    float z = sqrt(1.0 - r2);
+    vec2 r = randomVec2();
+    
+    float phi = TAU * r.x;
+    float x = cos(phi) * sqrt(r.y);
+    float y = sin(phi) * sqrt(r.y);
+    float z = sqrt(1.0 - r.y);
 
     return vec3(x, y, z);
-}
-
-vec3 randomCosineDirectionFromNormal(in vec3 normal) {
-    // compute basis from normal
-    vec3 tc = vec3(1.0 + normal.z - normal.xy * normal.xy, -normal.x * normal.y) / (1.0 + normal.z);
-    vec3 uu = vec3(tc.x, tc.z, -normal.x);
-    vec3 vv = vec3(tc.z, tc.y, -normal.y);
-    
-    float u = randomFloat();
-    float v = randomFloat();
-    float a = TAU * v;
-
-    return normalize(sqrt(u) * (cos(a) * uu + sin(a) * vv) + sqrt(1.0 - u) * normal);
 }
 
 mat3 onbBuildFromW(in vec3 w) {
@@ -96,23 +116,46 @@ Ray getRay() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
     uv = 2.0*uv - 1.0;
-    if(u_frame > 1u) uv += pixelSampleSquare();
+    //uv += pixelSampleSquare();
     uv.x *= u_resolution.x / u_resolution.y;
 
-    float tan_half_fov = tan(radians(camera.fov / 2.0));
+    //float tan_half_fov = tan(radians(camera.fov / 2.0));
 
     vec3 w = normalize(camera.lookdir);
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));
     vec3 v = cross(w, u);
 
-    vec3 direction = u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
+    vec3 direction = w * 2.0 + u * uv.x + v * uv.y; //u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
     direction = normalize(direction);
 
     return Ray(camera.lookfrom, direction);
 }
 
 vec2 getUV(in Camera cam, in vec3 intersection_point) {
-    vec3 direction = normalize(intersection_point - cam.lookfrom);
+    vec3 to_point = intersection_point - cam.lookfrom;
+    vec3 direction = normalize(to_point);
+
+    //float tan_half_fov = tan(radians(cam.fov / 2.0));
+
+    vec3 w = normalize(cam.lookdir);
+    vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));
+    vec3 v = cross(w, u);
+
+    vec3 fwd = w * 2.0;
+    float d = dot(w, direction);
+
+    if(d < EPSILON) return vec2(-MAXIMUM_DISTANCE, -MAXIMUM_DISTANCE);
+
+    d = 2.0 / d;
+
+    to_point = direction * d - fwd;
+
+    float x = dot(to_point, u);
+    float y = dot(to_point, v);
+
+    return vec2(x, y);
+
+    /*vec3 direction = normalize(intersection_point - cam.lookfrom);
 
     float tan_half_fov = tan(radians(cam.fov / 2.0));
 
@@ -126,23 +169,28 @@ vec2 getUV(in Camera cam, in vec3 intersection_point) {
     uv.y = dot(direction, v) / (tan_half_fov * dp);
     uv.x = dot(direction, u) / (tan_half_fov * dp);
 
-    return uv;
+    return uv;*/
 }
 
 Ray getRay(in Camera cam, in vec2 uv) {
     uv = 2.0*uv - 1.0;
     uv.x *= u_resolution.x / u_resolution.y;
 
-    float tan_half_fov = tan(radians(cam.fov / 2.0));
+    //float tan_half_fov = tan(radians(cam.fov / 2.0));
 
     vec3 w = normalize(cam.lookdir);
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));
     vec3 v = cross(w, u);
 
-    vec3 direction = u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
+    vec3 direction = w * 2.0 + u * uv.x + v * uv.y; //u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
     direction = normalize(direction);
 
     return Ray(cam.lookfrom, direction);
+}
+
+vec3 getSkyColor(in Ray ray) {
+    vec2 uv = spherical_map(ray.direction);
+    return texture(hdri_texture, uv).rgb;
 }
 
 vec3 getFinalColor(in vec3 color, in float pdf, in vec3 light_color, in vec3 light_color_sum, in uint total_light_colors) {

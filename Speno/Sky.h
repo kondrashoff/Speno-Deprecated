@@ -9,8 +9,8 @@
 struct Sky {
 	int type = SKY_TYPE_DEFAULT;
 	alignas(16) Vector3 sun_direction;
-	int sun_quality_i = 16;
-	int sun_quality_j = 8;
+	int sun_quality_i = 512;
+	int sun_quality_j = 256;
 	float pitch;
 	float yaw;
 

@@ -77,6 +77,17 @@
     <CopyFileToFolders Include="..\Binaries\tbbbind_2_0.dll">
       <Filter>Binaries</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="vertex.glsl" />
+    <CopyFileToFolders Include="structures.glsl" />
+    <CopyFileToFolders Include="random.glsl" />
+    <CopyFileToFolders Include="postprocess.glsl" />
+    <CopyFileToFolders Include="pathtracing.glsl" />
+    <CopyFileToFolders Include="noise.glsl" />
+    <CopyFileToFolders Include="main.glsl" />
+    <CopyFileToFolders Include="intersections.glsl" />
+    <CopyFileToFolders Include="hdri.glsl" />
+    <CopyFileToFolders Include="functions.glsl" />
+    <CopyFileToFolders Include="denoiser.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -111,15 +122,1541 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="vertex.glsl" />
-    <None Include="main.glsl" />
-    <None Include="postprocess.glsl" />
-    <None Include="random.glsl" />
-    <None Include="structures.glsl" />
-    <None Include="functions.glsl" />
-    <None Include="pathtracing.glsl" />
-    <None Include="intersections.glsl" />
-    <None Include="sky.glsl" />
-    <None Include="noise.glsl" />
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_0.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_1.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_2.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_3.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_4.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_5.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_6.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_7.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_8.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_9.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_10.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_11.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_12.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_13.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_14.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_15.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_16.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_17.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_18.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_19.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_20.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_21.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_22.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_23.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_24.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_25.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_26.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_27.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_28.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_29.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_30.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_31.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_32.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_33.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_34.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_35.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_36.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_37.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_38.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_39.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_40.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_41.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_42.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_43.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_44.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_45.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_46.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_47.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_48.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_49.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_50.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_51.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_52.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_53.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_54.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_55.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_56.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_57.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_58.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_59.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_60.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_61.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_62.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_63.png">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -207,9 +207,7 @@ bool intersectSceneBVH(inout Hit hit, in Ray ray) {
     return is_hit;
 }
 
-bool is_volume = false;
-bool is_light = false;
-
+/*
 bool intersectScene3DDA(inout Hit hit, in Ray ray) {
     is_volume = false;
     is_light = false;
@@ -220,7 +218,7 @@ bool intersectScene3DDA(inout Hit hit, in Ray ray) {
 
     vec3 minMask = vec3(0.0);
 
-    int steps = u_frame > 1u ? 3172 : 256;
+    int steps = u_samples > 1u ? 3172 : 256;
     for (int i = 0; i < steps && ((position.y < 500.0 && position.y > -1.0) || (ray.origin.y >= 500.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0) && position.x > -4096.0 && position.x < 4096.0 && position.z > -4096.0 && position.z < 4096.0; i++) {
     //for (int i = 0; i < 128 && (position.y < 255.0 || (ray.origin.y >= 255.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0); i++) {
         float current_height = texelFetch(map_texture, ivec2(position.xz) + 4096, 0).r * 255.0;
@@ -346,7 +344,7 @@ bool intersectScene3DDAtest(inout Hit hit, in Ray ray) {
 
     vec3 minMask = vec3(0.0);
 
-    int steps = u_frame > 1u ? 8192 : 256;
+    int steps = u_samples > 1u ? 8192 : 256;
     for (int i = 0; i < steps && ((position.y < 255.0 && position.y > -1.0) || (ray.origin.y >= 255.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0) && position.x > -4096.0 && position.x < 4096.0 && position.z > -4096.0 && position.z < 4096.0; i++) {
     //for (int i = 0; i < 128 && (position.y < 255.0 || (ray.origin.y >= 255.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0); i++) {
         float current_height = texelFetch(map_texture, ivec2(position.xz) + 4096, 0).r * 255.0;
@@ -434,7 +432,7 @@ bool intersectScene3DDAtest2(inout Hit hit, in Ray ray) {
     vec3 raySign = sign(ray.direction);
     vec3 dist = (position - ray.origin + 0.5 + raySign * 0.5) * rayInverse;
     vec3 minMask = vec3(0.0);
-    uint steps = u_frame < 2u ? 64u : 512u;
+    uint steps = u_samples < 2u ? 64u : 512u;
 
     for (uint i = 0u; i < steps; i++) {
         float map = 0.5 * perlin_noise(position * 0.01) + 0.5 * perlin_noise(position * 0.1) + exp(0.05 * position.y);
@@ -471,7 +469,7 @@ bool intersectScene3DDAtest2(inout Hit hit, in Ray ray) {
 
     return false;
 }
-
+*/
 bool continue_condition(in Ray ray, in vec3 position) {
     return (position.x >= 0.0   || ray.origin.x < 0.0  ) &&
            (position.x <= 255.0 || ray.origin.x > 255.0) &&
@@ -482,6 +480,8 @@ bool continue_condition(in Ray ray, in vec3 position) {
 }
 
 bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
+    hit.t = MAXIMUM_DISTANCE;
+
     is_volume = false;
     is_light = false;
 
@@ -491,7 +491,7 @@ bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
     vec3 dist = (position - ray.origin + 0.5 + raySign * 0.5) * rayInverse;
     vec3 minMask = vec3(0.0);
 
-    for (uint i = 0u; i < 1024u && continue_condition(ray, position); i++) {
+    for (uint i = 0u; i < 128u && continue_condition(ray, position); i++) {
         int block = 0;
 
         if(position.x >= 0.0 && position.z >= 0.0 && position.y > 0.0 && position.x <= 255.0 && position.z <= 255.0 && position.y < 255.0) {
@@ -512,17 +512,17 @@ bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
             hit.t = intersection;
             hit.normal = faceforward(normal, ray.direction, normal);
 
-            vec3 abs_normal = abs(normal);
             vec3 intr_pos = -(ray.origin + hit.t * ray.direction);
+            vec3 noise_pos = intr_pos;
 
-            if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                hit.color = texture(stone_texture, intr_pos.zy).rgb;
-            }
-            else if(abs_normal.y > abs_normal.z) {
-                hit.color = texture(stone_texture, intr_pos.xz).rgb;
+            if(block == 3) {
+                hit.color = vec3(2550, 2380, 2770);
+                is_light = true;
             }
             else {
-                hit.color = texture(stone_texture, intr_pos.xy).rgb;
+                float n1 = fbm(noise_pos, 8);
+                n1 = 0.33 + 0.33 * (1.0 + fbm(2.0 * n1 + noise_pos + vec3(847, 84, 489), 8));
+                hit.color = vec3(0.9, 0.25, 0.05) * n1;
             }
 
             return true;

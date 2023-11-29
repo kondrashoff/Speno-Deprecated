@@ -1,5 +1,40 @@
-#define iSteps 32
-#define jSteps 16
+#version 460
+
+out vec4 FragColor;
+
+uniform sampler2D previous_hdri_texture;
+
+#define PI  3.14159265
+#define TAU 6.28318531
+
+#define SKY_TYPE_BLACK     0
+#define SKY_TYPE_DEFAULT   1
+#define SKY_TYPE_REALISTIC 2
+
+struct Sky {
+	int type;
+	vec3 sun_direction;
+	int sun_quality_i;
+	int sun_quality_j;
+    float pitch;
+    float yaw;
+};
+
+layout(std430, binding = 3) buffer SSBO_Sky {
+    Sky sky;
+};
+
+vec2 spherical_map(vec3 p) {
+    vec2 uv = vec2(atan(p.z, p.x), asin(p.y));
+    uv *= vec2(1.0 / TAU, 1.0 / PI); uv += 0.5;
+    return uv;
+}
+
+vec3 spherical_map(vec2 uv) {
+    uv -= 0.5; uv *= vec2(TAU, PI);
+    vec2 s = sin(uv), c = cos(uv);
+    return vec3(c.x*c.y, s.y, s.x*c.y);
+}
 
 vec2 rsi(vec3 r0, vec3 rd, float sr) {
     // ray-sphere intersection that assumes
@@ -25,7 +60,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
     vec2 p = rsi(r0, r, rAtmos);
     if (p.x > p.y) return vec3(0,0,0);
     p.y = min(p.y, rsi(r0, r, rPlanet).x);
-    float iStepSize = (p.y - p.x) / float(iSteps);
+    float iStepSize = (p.y - p.x) / float(sky.sun_quality_i);
 
     // Initialize the primary ray time.
     float iTime = 0.0;
@@ -46,7 +81,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
     float pMie = 3.0 / (8.0 * PI) * ((1.0 - gg) * (mumu + 1.0)) / (pow(1.0 + gg - 2.0 * mu * g, 1.5) * (2.0 + gg));
 
     // Sample the primary ray.
-    for (int i = 0; i < iSteps; i++) {
+    for (int i = 0; i < sky.sun_quality_i; i++) {
 
         // Calculate the primary ray sample position.
         vec3 iPos = r0 + r * (iTime + iStepSize * 0.5);
@@ -63,7 +98,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
         iOdMie += odStepMie;
 
         // Calculate the step size of the secondary ray.
-        float jStepSize = rsi(iPos, pSun, rAtmos).y / float(jSteps);
+        float jStepSize = rsi(iPos, pSun, rAtmos).y / float(sky.sun_quality_j);
 
         // Initialize the secondary ray time.
         float jTime = 0.0;
@@ -73,7 +108,7 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
         float jOdMie = 0.0;
 
         // Sample the secondary ray.
-        for (int j = 0; j < jSteps; j++) {
+        for (int j = 0; j < sky.sun_quality_j; j++) {
 
             // Calculate the secondary ray sample position.
             vec3 jPos = iPos + pSun * (jTime + jStepSize * 0.5);
@@ -105,16 +140,16 @@ vec3 atmosphere(vec3 r, vec3 r0, vec3 pSun, float iSun, float rPlanet, float rAt
     return iSun * (pRlh * kRlh * totalRlh + pMie * kMie * totalMie);
 }
 
-vec3 getSkyColor(in Ray ray) {
+vec3 getSkyColor(in vec3 direction) {
     if(sky.type == SKY_TYPE_BLACK) {
         return vec3(0);
     }
 	else if(sky.type == SKY_TYPE_DEFAULT) {
-        return vec3(0.7, 0.8, 1.0) * min(1.0, 1.0 + dot(ray.direction, vec3(0, 1, 0)));
+        return vec3(0.7, 0.8, 1.0) * min(1.0, 1.0 + dot(direction, vec3(0, 1, 0)));
     }
     else if(sky.type == SKY_TYPE_REALISTIC) {
         vec3 color = atmosphere(
-            ray.direction,                  // normalized ray direction
+            direction,                      // normalized ray direction
             vec3(0,6373e3,0),               // ray origin
             sky.sun_direction,              // position of the sun
             22.0,                           // intensity of the sun
@@ -127,8 +162,23 @@ vec3 getSkyColor(in Ray ray) {
             0.9999                          // Mie preferred scattering direction
         );
 
-        return 10.0 - 10.0 * exp(-0.1 * color);
+        return 1.0 - exp(-color);
     }
     
     return vec3(1, 0, 0);
+}
+
+void main() {
+	vec2 uv = gl_FragCoord.xy / textureSize(previous_hdri_texture, 0);
+    vec4 prev_color = texture(previous_hdri_texture, uv);
+    
+    if(prev_color.a == 1.0) {
+        FragColor = prev_color;
+        return;
+    }
+
+	vec3 direction = spherical_map(uv);
+    vec3 color = getSkyColor(direction);
+
+    FragColor = vec4(color, 1.0);
 }
