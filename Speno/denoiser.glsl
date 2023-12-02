@@ -252,15 +252,55 @@ vec3 denoise2(float denoiseStrength) {
     return sum / cum_w;
 }
 
+vec3 denoise3(float denoiseStrength) {
+    vec3 sum = vec3(0.0);
+    float c_phi = 1.0;
+    float n_phi = 0.5;
+    float p_phi = 0.3;
+	vec3 cval = gaussianBlur(diffuse_texture, gl_FragCoord.xy);
+	vec3 nval = texelFetch(normal_texture, ivec2(gl_FragCoord.xy), 0).rgb;
+	vec3 pval = texelFetch(position_texture, ivec2(gl_FragCoord.xy), 0).rgb;
+    
+    float kernel = 1.0 / 81.0;
+
+    float cum_w = 0.0;
+    for(int i=-4; i<4; i++) {
+        for(int j=-4; j<4; j++) {
+            vec2 uv = gl_FragCoord.xy+vec2(i,j)*denoiseStrength;
+        
+            vec3 ctmp = gaussianBlur(diffuse_texture, uv);
+            vec3 t = cval - ctmp;
+            float dist2 = dot(t,t);
+            float c_w = min(exp(-(dist2) / c_phi), 1.0);
+        
+            vec3 ntmp = texelFetch(normal_texture, ivec2(uv), 0).rgb;
+            t = nval - ntmp;
+            dist2 = max(dot(t,t), 0.0);
+            float n_w = min(exp(-(dist2) / n_phi), 1.0);
+        
+            vec3 ptmp = texelFetch(position_texture, ivec2(uv), 0).rgb;
+            t = pval - ptmp;
+            dist2 = dot(t,t);
+            float p_w = min(exp(-(dist2) / p_phi), 1.0);
+        
+            float weight = c_w*n_w*p_w;
+            sum += ctmp*weight*kernel;
+            cum_w += weight*kernel;
+        }
+    }
+
+    return sum / cum_w;
+}
+
 float calculateAverageLuminance(in float previous_average_luminance, in vec2 resolution) {
-    int lod = int(log2(min(resolution.x, resolution.y))) - 1;
+    int lod = int(log2(min(resolution.x, resolution.y)));
     vec2 resolution2 = textureSize(diffuse_texture, lod);
 
     vec3 sum_cols;
 
     for(int x = 0; x < resolution2.x; x++) {
        for(int y = 0; y < resolution2.y; y++) {
-           sum_cols += texelFetch(diffuse_texture, ivec2(x, y), lod).rgb;
+           sum_cols += texelFetch(diffuse_texture, ivec2(x, y), lod).rgb;// * texelFetch(albedo_texture, ivec2(x, y), lod).rgb;
        }
     }
 
@@ -290,7 +330,7 @@ void main() {
     if(texture(position_texture, uv).a > 0.0) {
         //color = gaussianBlur(diffuse_texture, gl_FragCoord.xy);
         color = texture(diffuse_texture, uv).rgb;
-        //color = denoise2(2.0);
+        //color = denoise3(5.0);
     }
     else {
        color = texture(diffuse_texture, uv).rgb;
@@ -298,7 +338,7 @@ void main() {
        return;
     }
 
-    if(!cannot_be_reprojected) {
+    /*if(!cannot_be_reprojected) {
         vec4 reproj_data = texture(velocity_texture, uv);
 
         if(reproj_data.a == 1.0) {
@@ -308,7 +348,7 @@ void main() {
             FragColor = vec4(color, accum_frames);
             return;
         }
-    }
+    }*/
 	
 	FragColor = vec4(color, a);
 }

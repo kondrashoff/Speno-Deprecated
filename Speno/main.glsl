@@ -18,11 +18,13 @@ uniform sampler2DArray stbn_scalar_texture;
 uniform sampler2DArray stbn_vec1_texture;
 uniform sampler2DArray stbn_vec2_texture;
 uniform sampler2DArray stbn_vec3_texture;
+uniform sampler2DArray stbn_unitvec1_texture;
 uniform sampler2DArray stbn_unitvec2_texture;
 uniform sampler2DArray stbn_unitvec3_texture;
 uniform sampler2DArray stbn_unitvec3_cosine_texture;
 
 uniform sampler2D hdri_texture;
+uniform sampler2DArray voxel_game_textures;
 
 uniform vec2 u_resolution;
 uniform uint u_frame;
@@ -34,7 +36,7 @@ uniform float u_delta_time;
 #define PI                 3.14159265
 #define TAU                6.28318531
 #define EPSILON            0.002
-#define REPROJ_DELTA       0.01
+#define REPROJ_DELTA       0.05
 #define MAXIMUM_DISTANCE   16777215.0
 #define MAX_BVH_STACK_SIZE 23
 
@@ -48,6 +50,7 @@ uint stbn_scalar_shift;
 uint stbn_vec1_shift;
 uint stbn_vec2_shift;
 uint stbn_vec3_shift;
+uint stbn_unitvec1_shift;
 uint stbn_unitvec2_shift;
 uint stbn_unitvec3_shift;
 uint stbn_unitvec3_cosine_shift;
@@ -67,6 +70,7 @@ void main() {
     //float c = texelFetch(stbn_vec1_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).r;
     //vec2 c = texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).rg;
     //vec3 c = texelFetch(stbn_vec3_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).rgb;
+    //float c = texelFetch(stbn_unitvec1_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).r;
     //vec2 c = texelFetch(stbn_unitvec2_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).rg;
     //vec3 c = texelFetch(stbn_unitvec3_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).rgb;
     //vec3 c = texelFetch(stbn_unitvec3_cosine_texture, ivec3(gl_FragCoord.xy, u_frame % 64u) % 128, 0).rgb;
@@ -77,7 +81,7 @@ void main() {
     //if(cond1 || cond2) c = vec3(1, 0, 0);
     //else c = vec3(0);
 
-    //gbuffer_diffuse.rgb = c;
+    //gbuffer_diffuse = vec4(c);
     //return;
 
     setRandomSeed();

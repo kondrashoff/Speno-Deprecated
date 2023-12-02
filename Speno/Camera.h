@@ -15,7 +15,7 @@ struct Camera {
     float fov = 60.0f;
     float speed = 10.0f;
 
-    unsigned int max_depth = 2;
+    unsigned int max_depth = 5;
     unsigned int samples_per_pixel = 1;
 
     void buildFromRotations() {

@@ -11,25 +11,18 @@ vec3 spherical_map(vec2 uv) {
 }
 
 vec2 pixelSampleSquare() {
-    /*if(u_samples < 65u) {
-        vec2 r = texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg;
-        
-        bool cond1 = all(greaterThan(r, vec2(EPSILON)));
-        bool cond2 = all(lessThan(r, vec2(1.0 - EPSILON)));
-        if(cond1 && cond2) return (2.0 * r - 1.0) / min(u_resolution.x, u_resolution.y);
-    }*/
+    if(u_samples < 65u) {
+        vec2 r = 2.0 * texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg - 1.0;
+        return r / min(u_resolution.x, u_resolution.y);
+    }
 
     return (2.0 * randomVec2() - 1.0) / min(u_resolution.x, u_resolution.y);
 }
 
 vec2 randomInUnitDisk() {
-    /*if(u_samples < 65u) {
-        vec2 r = 2.0 * texelFetch(stbn_unitvec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec2_shift++) % 64) % 128, 0).rg - 1.0;
-
-        bool cond1 = all(greaterThan(r, vec2(EPSILON)));
-        bool cond2 = all(lessThan(r, vec2(1.0 - EPSILON)));
-        if(cond1 && cond2) return r;
-    }*/
+    if(u_samples < 65u) {
+        return 2.0 * texelFetch(stbn_unitvec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec2_shift++) % 64) % 128, 0).rg - 1.0;
+    }
 
     float r = sqrt(randomFloat());
     float phi = TAU*randomFloat();
@@ -37,16 +30,10 @@ vec2 randomInUnitDisk() {
     return vec2(r * sin(phi), r * cos(phi));
 }
 
-
-// This is a new version with blue noise
 vec3 randomOnSphere() {
-    /*if(u_samples < 65u) {
-        vec3 r = 2.0 * texelFetch(stbn_unitvec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec3_shift++) % 64) % 128, 0).rgb - 1.0;
-    
-        bool cond1 = all(greaterThan(r, vec3(EPSILON)));
-        bool cond2 = all(lessThan(r, vec3(1.0 - EPSILON)));
-        if(cond1 && cond2) return r;
-    }*/
+    if(u_samples < 65u) {
+        return 2.0 * texelFetch(stbn_unitvec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec3_shift++) % 64) % 128, 0).rgb - 1.0;
+    }
 
     float r1 = randomFloat();
     float r2 = randomFloat();
@@ -116,16 +103,17 @@ Ray getRay() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
     uv = 2.0*uv - 1.0;
-    //uv += pixelSampleSquare();
+    uv += pixelSampleSquare();
     uv.x *= u_resolution.x / u_resolution.y;
 
-    //float tan_half_fov = tan(radians(camera.fov / 2.0));
+    float tan_half_fov = tan(radians(camera.fov / 2.0));
 
     vec3 w = normalize(camera.lookdir);
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));
     vec3 v = cross(w, u);
 
-    vec3 direction = w * 2.0 + u * uv.x + v * uv.y; //u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
+    //vec3 direction = u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
+    vec3 direction = w * 2.0 + u * uv.x + v * uv.y;
     direction = normalize(direction);
 
     return Ray(camera.lookfrom, direction);
@@ -198,16 +186,6 @@ vec3 getFinalColor(in vec3 color, in float pdf, in vec3 light_color, in vec3 lig
     if(any(isnan(light_color))) light_color = vec3(0.0);
 
     vec3 final_color = (color * light_color) / pdf;
-    final_color = (final_color + light_color_sum) / float(total_light_colors + 1u);
-                
-    final_color = clamp(final_color, 0.0, 65535.0);
-    if(any(isnan(final_color))) final_color = vec3(0.0);
-
-    return final_color;
-}
-
-vec3 getFinalColor(in vec3 color, in vec3 light_color_sum, in uint total_light_colors) {
-    vec3 final_color = (1.0 / float(camera.max_depth)) * 0.5 * color;
     final_color = (final_color + light_color_sum) / float(total_light_colors + 1u);
                 
     final_color = clamp(final_color, 0.0, 65535.0);

@@ -27,8 +27,8 @@ struct Chunk {
 							blocks[x][y][z] = 3;
 						}
 						else {
-							if (noise > 0.38) blocks[x][y][z] = 1;
-							else blocks[x][y][z] = 2;
+							if (noise > 0.38) blocks[x][y][z] = 2;
+							else blocks[x][y][z] = 1;
 						}
 					}
 					else {

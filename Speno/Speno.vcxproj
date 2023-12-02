@@ -754,6 +754,9 @@
     <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_8.png" />
     <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_9.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Текст.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

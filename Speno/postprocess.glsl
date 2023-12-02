@@ -28,7 +28,7 @@ vec3 exposure(in vec3 color) {
     float EV100 = log2(avg_luminance * (S / K));
     float l_max = (78.0 / (q * S)) * exp2(EV100);
 
-    vec3 scaled_color = color / clamp(l_max, 0.1, 10.0);
+    vec3 scaled_color = color / clamp(l_max, 0.2, 5.0);
 
     return scaled_color;
 }

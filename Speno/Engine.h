@@ -101,17 +101,16 @@ public:
 		
 		glUseProgram(main_program);
 
-		glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
-		glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
-
 		setupScalarSTBN();
 		setupVec1STBN();
 		setupVec2STBN();
 		setupVec3STBN();
+		setupUnitvec1STBN();
 		setupUnitvec2STBN();
 		setupUnitvec3STBN();
 		setupUnitvec3cosineSTBN();
 		activateAllSTBNTextures();
+		setupVoxelGameTextures();
 		
 		resolution_location = glGetUniformLocation(main_program, "u_resolution");
 		frame_location      = glGetUniformLocation(main_program, "u_frame");
@@ -125,9 +124,6 @@ public:
 		setupGBuffers(width, height);
 
 		glUseProgram(denoiser_program);
-
-		glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
-		glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
 		denoiser_delta_time_location = glGetUniformLocation(denoiser_program, "u_delta_time");
 
@@ -265,7 +261,7 @@ public:
 
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, albedo_texture);
-			glUniform1i(glGetUniformLocation(denoiser_program, "albdeo_texture"), 1);
+			glUniform1i(glGetUniformLocation(denoiser_program, "albedo_texture"), 1);
 
 			glActiveTexture(GL_TEXTURE2);
 			glBindTexture(GL_TEXTURE_2D, normal_texture);
@@ -382,9 +378,9 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_scalar_2Dx1Dx1D_128x128x64x1_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 1);
+			unsigned char* stbn_texture = stbi_load(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 1);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RED, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RED, GL_UNSIGNED_BYTE, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -395,11 +391,53 @@ private:
 		}
 	}
 
+	void setupVoxelGameTextures() {
+		glGenTextures(1, &voxel_game_texture_array);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_game_texture_array);
+
+		std::string filepath = "C:/Users/Admin/source/repos/Speno/Speno/Textures/";
+		std::vector<std::string> filenames;
+		filenames.push_back("stone");
+		filenames.push_back("dirt");
+		filenames.push_back("hardened_clay");
+		filenames.push_back("hardened_clay_stained_red");
+		filenames.push_back("red_sandstone_top");
+		filenames.push_back("red_sandstone_normal");
+		filenames.push_back("red_sandstone_bottom");
+
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, 16, 16, filenames.size());
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		for (int i = 0; i < filenames.size(); i++) {
+			std::string filename = filepath + filenames[i] + ".png";
+			int width, height, num_channels;
+			unsigned char* texture = stbi_load(filename.c_str(), &width, &height, &num_channels, 4);
+
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture);
+
+			if (!texture) {
+				printf("Failed to load texture: %s\n", filename.c_str());
+				exit(EXIT_FAILURE);
+			}
+
+			stbi_image_free(texture);
+		}
+
+		glActiveTexture(GL_TEXTURE14);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_game_texture_array);
+		glUniform1i(glGetUniformLocation(main_program, "voxel_game_textures"), 14);
+		glActiveTexture(GL_TEXTURE0);
+	}
+
 	void setupVec1STBN() {
 		glGenTextures(1, &stbn_vec1_texture_array);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec1_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, 128, 128, 64);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R16, 128, 128, 64);
 
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -409,9 +447,9 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_vec1_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -426,7 +464,7 @@ private:
 		glGenTextures(1, &stbn_vec2_texture_array);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec2_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, 128, 128, 64);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RG16, 128, 128, 64);
 
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -436,9 +474,9 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_vec2_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -453,7 +491,7 @@ private:
 		glGenTextures(1, &stbn_vec3_texture_array);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec3_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, 128, 128, 64);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGB16, 128, 128, 64);
 
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -463,9 +501,36 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_vec3_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
+
+			if (!stbn_texture) {
+				printf("Failed to load texture: %s\n", stbn_filename.c_str());
+				exit(EXIT_FAILURE);
+			}
+
+			stbi_image_free(stbn_texture);
+		}
+	}
+
+	void setupUnitvec1STBN() {
+		glGenTextures(1, &stbn_unitvec1_texture_array);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec1_texture_array);
+
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R8, 128, 128, 64);
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		for (int i = 0; i < 64; i++) {
+			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec1_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
+			int stbn_width, stbn_height, stbn_num_channels;
+			unsigned char* stbn_texture = stbi_load(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_BYTE, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -480,7 +545,7 @@ private:
 		glGenTextures(1, &stbn_unitvec2_texture_array);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec2_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, 128, 128, 64);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RG16, 128, 128, 64);
 
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -490,9 +555,9 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec2_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -507,7 +572,7 @@ private:
 		glGenTextures(1, &stbn_unitvec3_texture_array);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, 128, 128, 64);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGB16, 128, 128, 64);
 
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -517,9 +582,9 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec3_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 3);
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGB, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -534,7 +599,7 @@ private:
 		glGenTextures(1, &stbn_unitvec3_cosine_texture_array);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_cosine_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, 128, 128, 64);
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA16, 128, 128, 64);
 
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -544,9 +609,9 @@ private:
 		for (int i = 0; i < 64; i++) {
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec3_cosine_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
-			float* stbn_texture = stbi_loadf(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
 
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_FLOAT, stbn_texture);
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
 
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
@@ -575,16 +640,22 @@ private:
 		glUniform1i(glGetUniformLocation(main_program, "stbn_vec3_texture"), 9);
 
 		glActiveTexture(GL_TEXTURE10);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec2_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec2_texture"), 10);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec1_texture_array);
+		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec1_texture"), 10);
 
 		glActiveTexture(GL_TEXTURE11);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec3_texture"), 11);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec2_texture_array);
+		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec2_texture"), 11);
 
 		glActiveTexture(GL_TEXTURE12);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_texture_array);
+		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec3_texture"), 12);
+
+		glActiveTexture(GL_TEXTURE13);
 		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_cosine_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec3_cosine_texture"), 12);
+		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec3_cosine_texture"), 13);
+
+		glActiveTexture(GL_TEXTURE0);
 	}
 
 	void setupGBuffers(int width, int height) {
@@ -644,12 +715,12 @@ private:
 
 		glGenFramebuffers(1, &pathtracing_framebuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, pathtracing_framebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, albedo_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, normal_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_texture,  0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, albedo_texture,   0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, normal_texture,   0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, position_texture, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, velocity_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, light_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, light_texture,    0);
 
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -942,7 +1013,7 @@ private:
 	Camera camera;
 	Camera old_camera;
 	Sky sky = Sky(45.0, 60.0);
-
+	
 	GLuint ssbo_camera;
 	GLuint ssbo_old_camera;
 	GLuint ssbo_sky;
@@ -963,9 +1034,12 @@ private:
 	GLuint stbn_vec1_texture_array;
 	GLuint stbn_vec2_texture_array;
 	GLuint stbn_vec3_texture_array;
+	GLuint stbn_unitvec1_texture_array;
 	GLuint stbn_unitvec2_texture_array;
 	GLuint stbn_unitvec3_texture_array;
 	GLuint stbn_unitvec3_cosine_texture_array;
+
+	GLuint voxel_game_texture_array;
 
 	GLuint diffuse_texture,		   // RGB - pathtraced color; A - number of accumulated colors
 		albedo_texture,			   // RGB - albedo

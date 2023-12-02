@@ -1,9 +1,8 @@
 void setRandomSeed() {
     if(u_samples < 65u) {
-        highp float stbn_seed = texelFetch(stbn_vec1_texture, ivec3(gl_FragCoord.xy, u_frame % 64) % 128, 0).r;
-        if(stbn_seed > EPSILON && stbn_seed < (1.0 - EPSILON)) {
-            random_seed = floatBitsToUint(stbn_seed);
-        }
+        float stbn_seed = texelFetch(stbn_scalar_texture, ivec3(gl_FragCoord.xy, u_frame % 64) % 128, 0).r;
+        random_seed = uint(stbn_seed * 65535.0);
+        return;
     }
 
     random_seed = uint(gl_FragCoord.x) + uint(gl_FragCoord.y) * uint(u_resolution.x);
@@ -33,34 +32,25 @@ highp float floatConstruct(highp uint m) {
 }
 
 float randomFloat() {
-    /*if(u_samples < 65u) {
-        float r = texelFetch(stbn_vec1_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec1_shift++) % 64) % 128, 0).r;
-        if(r > EPSILON && r < (1.0 - EPSILON)) return r;
-    }*/
+    if(u_samples < 65u) {
+        return texelFetch(stbn_vec1_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec1_shift++) % 64) % 128, 0).r;
+    }
        
     return floatConstruct(randomUint());
 }
 
 vec2 randomVec2() {
-    /*if(u_samples < 65u) {
-        vec2 r = texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg; 
-        
-        bool cond1 = all(greaterThan(r, vec2(EPSILON)));
-        bool cond2 = all(lessThan(r, vec2(1.0 - EPSILON)));
-        if(cond1 && cond2) return r;
-    }*/
+    if(u_samples < 65u) {
+        return texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg;
+    }
         
     return vec2(randomFloat(), randomFloat());
 }
 
 vec3 randomVec3() {
-    /*if(u_samples < 65u) {
-        vec3 r = texelFetch(stbn_vec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec3_shift++) % 64) % 128, 0).rgb;
-        
-        bool cond1 = all(greaterThan(r, vec3(EPSILON)));
-        bool cond2 = all(lessThan(r, vec3(1.0 - EPSILON)));
-        if(cond1 && cond2) return r;
-    }*/
+    if(u_samples < 65u) {
+        return texelFetch(stbn_vec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec3_shift++) % 64) % 128, 0).rgb;
+    }
 
     return vec3(randomFloat(), randomFloat(), randomFloat());
 }
