@@ -89,7 +89,7 @@ void main() {
     
     vec3 color = texture(rendered_frame, uv).rgb;
 
-    color = exposure(color);
+    color = exposure(2.0 * color);
     color = ACESFitted(color);
     color = sRGB(color);
 

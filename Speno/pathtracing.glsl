@@ -107,6 +107,7 @@ bool scatterVoxelLight(in Hit hit, inout Ray ray, inout vec3 color, inout float 
 }
 
 bool scatterSkyLight(in Hit hit, inout Ray ray, inout vec3 color, inout float pdf) {
+    //Sphere sun = Sphere(sky.sun_direction * 250000.0, 4000.0);
     Sphere sun = Sphere(sky.sun_direction * 250000.0, 5500.0);
     ray.origin += ray.direction * (hit.t - EPSILON);
 
@@ -129,7 +130,7 @@ bool scatterSkyLight(in Hit hit, inout Ray ray, inout vec3 color, inout float pd
     
     float distance_squared = light_hit.t * light_hit.t;
     float light_cosine = 1.0;//abs(dot(light_hit.normal, -to_light));
-    float light_area = sphereArea(sun) * 5500.0;
+    float light_area = sphereArea(sun) * 6500.0;
 
     light_pdf = distance_squared / (light_cosine * light_area);
     if(light_pdf < EPSILON) return false;
@@ -175,15 +176,10 @@ vec3 pathtrace(in Ray ray) {
             
             if(sky.type == SKY_TYPE_REALISTIC && scatterSkyLight(light_hit, light_ray, light_color, light_pdf) && !intersectScene(light_hit, light_ray, use_voxels)) {
                 vec3 c = (light_color * getSkyColor(light_ray)) / light_pdf;
-                 // TODO: можно перенести эту проверку прямо в scatteSkyLight(), используя light_contribution, 
-                 // это будет быстрее работать, 
-                 // ещё нужно не забыть добавить переменную, в которую можно будет поместить значение getSkyColor()
-                if((c.r + c.g + c.b) > (color.r + color.g + color.b) * 0.5) {
-                    possible_color += c;
-                    possible_colors++;
+                possible_color += c;
+                possible_colors++;
 
-                    if(is_volume) return getFinalColor(possible_color, possible_colors);
-                }
+                if(is_volume) return getFinalColor(possible_color, possible_colors);
             }
             
             /*Hit camera_hit = hit;

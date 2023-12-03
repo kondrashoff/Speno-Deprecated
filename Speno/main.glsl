@@ -12,7 +12,7 @@ uniform sampler2D previous_diffuse_texture;
 uniform sampler2D previous_albedo_texture;
 uniform sampler2D previous_normal_texture;
 uniform sampler2D previous_position_texture;
-uniform sampler2D previous_light_texture;
+uniform sampler2D previous_restir_texture;
 
 uniform sampler2DArray stbn_scalar_texture;
 uniform sampler2DArray stbn_vec1_texture;

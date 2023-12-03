@@ -237,8 +237,8 @@ public:
 			glUniform1i(glGetUniformLocation(main_program, "previous_position_texture"), 3);
 
 			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, light_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_light_texture"), 4);
+			glBindTexture(GL_TEXTURE_2D, restir_texture);
+			glUniform1i(glGetUniformLocation(main_program, "previous_restir_texture"), 4);
 
 			glActiveTexture(GL_TEXTURE5);
 			glBindTexture(GL_TEXTURE_2D, hdri_texture);
@@ -704,8 +704,8 @@ private:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glGenTextures(1, &light_texture);
-		glBindTexture(GL_TEXTURE_2D, light_texture);
+		glGenTextures(1, &restir_texture);
+		glBindTexture(GL_TEXTURE_2D, restir_texture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -720,7 +720,7 @@ private:
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, normal_texture,   0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, position_texture, 0);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, velocity_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, light_texture,    0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, restir_texture,    0);
 
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -1012,13 +1012,12 @@ private:
 	BlockWorld world; 
 	Camera camera;
 	Camera old_camera;
-	Sky sky = Sky(45.0, 60.0);
+	Sky sky = Sky(60.0, 60.0);
 	
 	GLuint ssbo_camera;
 	GLuint ssbo_old_camera;
 	GLuint ssbo_sky;
 	GLuint ssbo_chunks;
-	GLuint ssbo_lights;
 	GLuint ssbo_triangles;
 	GLuint ssbo_bvh_nodes;
 
@@ -1046,7 +1045,7 @@ private:
 		normal_texture,			   // RGB - normal
 		position_texture,		   // RGB - world position;   A - Depth
 		velocity_texture,		   // RG  - velocity
-		light_texture;		       // RGB - position of light
+		restir_texture;		       // RGB - resrit information
 
 	GLuint hdri_texture;
 	GLuint denoised_texture;

@@ -513,10 +513,10 @@ bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
             hit.normal = faceforward(normal, ray.direction, normal);
 
             vec3 intr_pos = -(ray.origin + hit.t * ray.direction);
-            vec3 abs_normal = abs(normal);
+            vec3 abs_normal = abs(hit.normal);
             vec3 noise_pos = intr_pos;
 
-            int index = block + 1;
+            int index = block - 1;
 
             if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
                 hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, index)).rgb;

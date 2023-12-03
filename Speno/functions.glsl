@@ -103,10 +103,10 @@ Ray getRay() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
     uv = 2.0*uv - 1.0;
-    uv += pixelSampleSquare();
+    //uv += pixelSampleSquare();
     uv.x *= u_resolution.x / u_resolution.y;
 
-    float tan_half_fov = tan(radians(camera.fov / 2.0));
+    //float tan_half_fov = tan(radians(camera.fov / 2.0));
 
     vec3 w = normalize(camera.lookdir);
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));

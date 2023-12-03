@@ -330,7 +330,7 @@ void main() {
     if(texture(position_texture, uv).a > 0.0) {
         //color = gaussianBlur(diffuse_texture, gl_FragCoord.xy);
         color = texture(diffuse_texture, uv).rgb;
-        //color = denoise3(5.0);
+        //color = denoise2(5.0);
     }
     else {
        color = texture(diffuse_texture, uv).rgb;
