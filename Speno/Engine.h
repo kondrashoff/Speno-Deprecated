@@ -163,17 +163,17 @@ public:
 
 		chunks_perf_monitor.start();
 		for (int x = 0; x < world.generation_distance; x++) {
-			for (int z = 0; z < world.generation_distance; z++) {
-				Perfomance chunk_perf_monitor;
-				chunk_perf_monitor.start();
+			Perfomance chunk_perf_monitor;
+			chunk_perf_monitor.start();
 
+			for (int z = 0; z < world.generation_distance; z++) {
 				Chunk generated_chunk;
 				generated_chunk.generate(seed, x * 16, z * 16);
 				world.chunks.push_back(generated_chunk);
-
-				chunk_perf_monitor.stop();
-				std::cout << "Chunk[" << x << "][" << z << "] generated. " << chunk_perf_monitor << std::endl;
 			}
+
+			chunk_perf_monitor.stop();
+			std::cout << "Chunk[" << x << "][all] generated. " << chunk_perf_monitor << std::endl;
 		}
 		chunks_perf_monitor.stop();
 
@@ -398,6 +398,8 @@ private:
 		std::string filepath = "C:/Users/Admin/source/repos/Speno/Speno/Textures/";
 		std::vector<std::string> filenames;
 		filenames.push_back("stone");
+		filenames.push_back("grass_top");
+		filenames.push_back("grass_side");
 		filenames.push_back("dirt");
 		filenames.push_back("hardened_clay");
 		filenames.push_back("hardened_clay_stained_red");
@@ -1012,7 +1014,7 @@ private:
 	BlockWorld world; 
 	Camera camera;
 	Camera old_camera;
-	Sky sky = Sky(60.0, 60.0);
+	Sky sky = Sky(30.0, 60.0);
 	
 	GLuint ssbo_camera;
 	GLuint ssbo_old_camera;

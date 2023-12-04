@@ -130,7 +130,7 @@ bool scatterSkyLight(in Hit hit, inout Ray ray, inout vec3 color, inout float pd
     
     float distance_squared = light_hit.t * light_hit.t;
     float light_cosine = 1.0;//abs(dot(light_hit.normal, -to_light));
-    float light_area = sphereArea(sun) * 6500.0;
+    float light_area = sphereArea(sun) * 1500.0;
 
     light_pdf = distance_squared / (light_cosine * light_area);
     if(light_pdf < EPSILON) return false;
@@ -174,7 +174,7 @@ vec3 pathtrace(in Ray ray) {
             vec3 light_color = color;
             float light_pdf = pdf;
             
-            if(sky.type == SKY_TYPE_REALISTIC && scatterSkyLight(light_hit, light_ray, light_color, light_pdf) && !intersectScene(light_hit, light_ray, use_voxels)) {
+            if(sky.type == SKY_TYPE_REALISTIC && sky.sun_direction.y >= -EPSILON && scatterSkyLight(light_hit, light_ray, light_color, light_pdf) && !intersectScene(light_hit, light_ray, use_voxels)) {
                 vec3 c = (light_color * getSkyColor(light_ray)) / light_pdf;
                 possible_color += c;
                 possible_colors++;

@@ -470,13 +470,13 @@ bool intersectScene3DDAtest2(inout Hit hit, in Ray ray) {
     return false;
 }
 */
-bool continue_condition(in Ray ray, in vec3 position) {
-    return (position.x >= 0.0   || ray.origin.x < 0.0  ) &&
-           (position.x <= 255.0 || ray.origin.x > 255.0) &&
-           (position.y >= 0.0   || ray.origin.y < 0.0  ) &&
-           (position.y <= 255.0 || ray.origin.y > 255.0) &&
-           (position.z >= 0.0   || ray.origin.z < 0.0  ) &&
-           (position.z <= 255.0 || ray.origin.z > 255.0);
+bool continue_condition(in Ray ray, in vec3 position, in float max_pos) {
+    return (position.x >= 0.0     || ray.origin.x < 0.0    ) &&
+           (position.x <= max_pos || ray.origin.x > max_pos) &&
+           (position.y >= 0.0     || ray.origin.y < 0.0    ) &&
+           (position.y <= 255.0   || ray.origin.y > 255.0  ) &&
+           (position.z >= 0.0     || ray.origin.z < 0.0    ) &&
+           (position.z <= max_pos || ray.origin.z > max_pos);
 }
 
 bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
@@ -491,23 +491,27 @@ bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
     vec3 dist = (position - ray.origin + 0.5 + raySign * 0.5) * rayInverse;
     vec3 minMask = vec3(0.0);
 
-    for (uint i = 0u; i < 64u && continue_condition(ray, position); i++) {
+    int chunks_total = chunks.length();
+    int chunks_size = int(sqrt(chunks_total));
+    float max_pos = float(chunks_size * 16);
+
+    for (uint i = 0u; i < 128u && continue_condition(ray, position, max_pos); i++) {
         int block = 0;
 
-        if(position.x >= 0.0 && position.z >= 0.0 && position.y > 0.0 && position.x <= 255.0 && position.z <= 255.0 && position.y < 255.0) {
+        if(position.x >= 0.0 && position.z >= 0.0 && position.y > 0.0 && position.x < max_pos && position.z < max_pos && position.y < 255.0) {
             ivec3 ipos = ivec3(position);
-            int chunk_number = (ipos.x / 16) * 16 + (ipos.z / 16);
-            if(chunk_number >= 0 && chunk_number <= 255) {
+            int chunk_number = (ipos.x / 16) * chunks_size + (ipos.z / 16);
+            if(chunk_number >= 0 && chunk_number < chunks_total) {
                 ivec3 array_pos = ipos % ivec3(16, 255, 16);
                 block = chunks[chunk_number].block[array_pos.x][array_pos.y][array_pos.z];
             }
         }
         
         if (block != 0) {
-            vec3 normal = -minMask * raySign;
-
             vec3 minPos = (position - ray.origin + 0.5 - 0.5 * vec3(raySign)) * rayInverse;
             float intersection = max(minPos.x, max(minPos.y, minPos.z));
+            
+            vec3 normal = -minMask * raySign;
 
             hit.t = intersection;
             hit.normal = faceforward(normal, ray.direction, normal);
@@ -516,41 +520,40 @@ bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
             vec3 abs_normal = abs(hit.normal);
             vec3 noise_pos = intr_pos;
 
-            int index = block - 1;
-
-            if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, index)).rgb;
+            if(block == 1) {
+                if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
+                    hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 0)).rgb;
+                }
+                else if(abs_normal.y > abs_normal.z) {
+                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 0)).rgb;
+                }
+                else {
+                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 0)).rgb;
+                }
             }
-            else if(abs_normal.y > abs_normal.z) {
-                hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, index)).rgb;
-            }
-            else {
-                hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, index)).rgb;
-            }
-
-            /*if(block == 1) {
+            else if(block == 2) {
                 if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
                     hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 2)).rgb;
                 }
                 else if(abs_normal.y > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 2)).rgb;
+                    if(normal.y < 0.0) hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 3)).rgb;
+                    else hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 1)).rgb;
                 }
                 else {
                     hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 2)).rgb;
                 }
             }
-            else {
+            else if(block == 3) {
                 if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 4)).rgb;
+                    hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 3)).rgb;
                 }
                 else if(abs_normal.y > abs_normal.z) {
-                    if(normal.y < 0.0) hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 5)).rgb;
-                    else hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 3)).rgb;
+                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 3)).rgb;
                 }
                 else {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 4)).rgb;
+                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 3)).rgb;
                 }
-            }*/
+            }
 
             return true;
         }

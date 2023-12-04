@@ -1,8 +1,5 @@
 ﻿//#define DEBUG
 
-// TODO: проверить среднее число у текстур stbn
-// TODO: может стоит переустановить stbn
-
 #include "Engine.h"
 using namespace std;
 

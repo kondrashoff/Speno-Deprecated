@@ -2,6 +2,20 @@ void setRandomSeed() {
     if(u_samples < 65u) {
         float stbn_seed = texelFetch(stbn_scalar_texture, ivec3(gl_FragCoord.xy, u_frame % 64) % 128, 0).r;
         random_seed = uint(stbn_seed * 65535.0);
+
+        uvec2 c = uvec2(gl_FragCoord.xy) / 128u;
+        uint max_c = uint(u_resolution.y) / 128u;
+        uint quad = c.x * max_c + c.y;
+
+        stbn_scalar_shift += quad;
+        stbn_vec1_shift += quad;
+        stbn_vec2_shift += quad;
+        stbn_vec3_shift += quad;
+        stbn_unitvec1_shift += quad;
+        stbn_unitvec2_shift += quad;
+        stbn_unitvec3_shift += quad;
+        stbn_unitvec3_cosine_shift += quad;
+
         return;
     }
 

@@ -103,7 +103,7 @@ Ray getRay() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
     uv = 2.0*uv - 1.0;
-    //uv += pixelSampleSquare();
+    uv += pixelSampleSquare();
     uv.x *= u_resolution.x / u_resolution.y;
 
     //float tan_half_fov = tan(radians(camera.fov / 2.0));
@@ -164,13 +164,14 @@ Ray getRay(in Camera cam, in vec2 uv) {
     uv = 2.0*uv - 1.0;
     uv.x *= u_resolution.x / u_resolution.y;
 
-    //float tan_half_fov = tan(radians(cam.fov / 2.0));
+    float tan_half_fov = tan(radians(cam.fov / 2.0));
 
     vec3 w = normalize(cam.lookdir);
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));
     vec3 v = cross(w, u);
 
-    vec3 direction = w * 2.0 + u * uv.x + v * uv.y; //u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
+    //vec3 direction = w * 2.0 + u * uv.x + v * uv.y;
+    vec3 direction = u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
     direction = normalize(direction);
 
     return Ray(cam.lookfrom, direction);
