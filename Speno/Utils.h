@@ -83,7 +83,7 @@ struct Vector3 {
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Vector3& v) {
-    return out << v.x << ' ' << v.y << ' ' << v.z;
+    return out << v.x << ", " << v.y << ", " << v.z;
 }
 
 inline Vector3 operator+(const Vector3& u, const Vector3& v) {

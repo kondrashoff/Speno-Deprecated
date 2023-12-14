@@ -3,6 +3,7 @@
 out vec4 FragColor;
 
 uniform sampler2D rendered_frame;
+uniform sampler2D albedo_texture;
 
 vec3 clamp_color(in vec3 color) {
 	float maximum = max(color.r, max(color.g, color.b));
@@ -19,18 +20,23 @@ float luminance(in vec3 color) {
 }
 
 vec3 exposure(in vec3 color) {
-    float avg_luminance = texelFetch(rendered_frame, ivec2(0), 0).a;
+    float avg_lum = texelFetch(rendered_frame, ivec2(0), 0).a; // Average luminance of rendered frame
 
-    float S = 100.0;
-    float K = 12.5;
-    float q = 0.65;
+    const float N = 0.1;        // aperture
+    const float t = 1.0 / 60.0; // shutter speed
+    const float S = 100.0;      // ISO
+    const float K = 12.5;       // lightmeter calibration constant
+    const float L = avg_lum;    // luminance cd/m2
+    
+    const float EVcomp = 1.0; // User exposure
+    const float EVmin  = 0.0; // Minimum exposure
+    const float EVmax  = 9.6; // Maximum exposure
 
-    float EV100 = log2(avg_luminance * (S / K));
-    float l_max = (78.0 / (q * S)) * exp2(EV100);
+    float EV100 = log2(L * S / K);
+    float EV = exp2(EV100 - EVcomp);
+    float H = clamp(1.0 / EV, EVmin, EVmax);
 
-    vec3 scaled_color = color / clamp(l_max, 0.1, 10.0);
-
-    return scaled_color;
+    return H * color;
 }
 
 vec3 whitePreservingLumaBasedReinhardToneMapping(in vec3 color) {
@@ -87,13 +93,11 @@ void main() {
     vec2 resolution = textureSize(rendered_frame, 0);
     vec2 uv = gl_FragCoord.xy / resolution;
     
-    vec3 color = texture(rendered_frame, uv).rgb;
+    vec3 color = texture(rendered_frame, uv).rgb * texture(albedo_texture, uv).rgb;
 
-    color = exposure(2.0 * color);
+    color = exposure(color);
     color = ACESFitted(color);
     color = sRGB(color);
-
-    color *= clamp(smoothstep(1.8, 0.5, length(uv * 2.0 - 1.0)) * 0.75 + 0.25, 0.0, 1.0);
 	
 	FragColor = vec4(color, 1);
 }

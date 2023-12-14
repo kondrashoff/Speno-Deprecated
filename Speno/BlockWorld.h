@@ -19,40 +19,36 @@ struct Chunk {
 			for (int z = 0; z < 16; z++) {
 				double dz = static_cast<double>(start_z + z);
 
-				double mountains = 245.0 * std::pow(0.5 * perlin.octave2D_01(dx * 0.01, dz * 0.01, 8) + 0.5, 2.0);
-				double plains = 10.0 * (0.5 * perlin.noise2D_01(dx * 0.03, dz * 0.03) + 0.5);
-				double mixture = std::pow(0.5 * perlin.noise2D_01(dx * 0.003, dz * 0.003) + 0.5, 3.0);
-				double inv_mixture = (1.0 - mixture);
-				int height = int(inv_mixture * plains + mixture * mountains);
+				double dm = 1.0 - std::abs(perlin.octave2D(dx * 0.002, dz * 0.002, 8));
+				       dm = std::min(dm, 1.0 - std::abs(perlin.octave2D((dx + 93.981) * 0.004, (dz - 893.82) * 0.004, 8)));
+				       dm = std::min(dm, 1.0 - std::abs(perlin.octave2D((dx - 342.45) * 0.008, (dz + 128.18) * 0.008, 8)));
+				double mountains = 255.0 * dm;
 
-				for (int y = 0; y < height; y++) {
+				double n1 = perlin.octave2D( dx           * 0.003,  dz           * 0.003, 8);
+				double n2 = perlin.octave2D((dx + 93.981) * 0.005, (dz - 893.82) * 0.005, 8);
+				double n3 = perlin.octave2D((dx - 342.45) * 0.01,  (dz + 128.18) * 0.01,  8);
+
+				double v1 = 1.0 - pow(std::abs(std::sin(0.003 * dz + 1.2 * n1 + dm)), 3.0);
+				double v2 = 1.0 - pow(std::abs(std::sin(0.005 * dz + 1.2 * n2 + dm)), 3.0);
+				double v3 = 1.0 - pow(std::abs(std::sin(0.01  * dz + 1.2 * n3 + dm)), 3.0);
+
+				double dc = v1;
+				dc = std::min(dc, v2);
+				dc = std::min(dc, v3);
+
+				double canyons = 60.0 * dc;
+				int height = std::clamp(int((canyons + mountains) / 2.0), 2, 255);
+
+				for (int y = 0; y < height - 2; y++) {
 					blocks[x][y][z] = 1;
 				}
 
-				blocks[x][height][z] = 3;
-				blocks[x][height+1][z] = 2;
+				blocks[x][height-2][z] = 3;
+				blocks[x][height-1][z] = 2;
 
-				for (int y = height + 2; y < 255; y++) {
+				for (int y = height; y < 255; y++) {
 					blocks[x][y][z] = 0;
 				}
-
-				/*for (int y = 0; y < 255; y++) {
-					double dy = static_cast<double>(y);
-					double noise = 0.5 * perlin.octave3D_01(dx * 0.03, dy * 0.03, dz * 0.03, 4) + 0.5 * perlin.octave3D_01(dx * 0.1, dy * 0.1, dz * 0.1, 2) + std::exp((y - 127.5) * 0.01) - 1.0;
-					
-					if (noise < 0.4) {
-						if (false && noise > 0.35 && rand() < 128) {
-							blocks[x][y][z] = 3;
-						}
-						else {
-							if (noise > 0.38) blocks[x][y][z] = 2;
-							else blocks[x][y][z] = 1;
-						}
-					}
-					else {
-						blocks[x][y][z] = 0;
-					}
-				}*/
 			}
 		}
 	}

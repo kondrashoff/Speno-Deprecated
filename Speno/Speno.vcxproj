@@ -106,12 +106,12 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>C:\Users\Admin\source\repos\Speno\Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Admin\source\repos\Speno\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Admin\source\repos\Speno\Libraries;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Admin\source\repos\Speno\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32.lib;OpenImageDenoise.lib;OpenImageDenoise_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -125,28 +125,20 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>C:\Users\Admin\source\repos\Speno\Includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Admin\source\repos\Speno\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Admin\source\repos\Speno\Libraries;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Admin\source\repos\Speno\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32.lib;OpenImageDenoise.lib;OpenImageDenoise_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BlockWorld.h" />
     <ClCompile Include="Speno.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="..\Binaries\glew32.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\glfw3.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -161,51 +153,6 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_core.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_cpu.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_cuda.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_hip.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_sycl.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_sycl_xehpg.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\OpenImageDenoise_device_sycl_xelp.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\pi_level_zero.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\pi_win_proxy_loader.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\sycl7.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\tbb12.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\tbbbind.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\tbbbind_2_0.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binaries\tbbbind_2_5.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="functions.glsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -241,521 +188,61 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_0.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_1.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_10.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_11.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_12.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_13.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_14.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_15.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_16.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_17.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_18.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_19.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_2.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_20.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_21.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_22.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_23.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_24.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_25.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_26.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_27.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_28.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_29.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_3.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_30.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_31.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_32.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_33.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_34.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_35.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_36.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_37.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_38.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_39.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_4.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_40.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_41.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_42.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_43.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_44.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_45.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_46.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_47.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_48.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_49.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_5.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_50.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_51.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_52.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_53.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_54.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_55.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_56.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_57.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_58.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_59.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_6.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_60.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_61.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_62.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_63.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_7.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_8.png" />
-    <Image Include="STBN\stbn_scalar_2Dx1Dx1D_128x128x64x1_9.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_unitvec1_2Dx1D_128x128x64_9.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_unitvec2_2Dx1D_128x128x64_9.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_unitvec3_2Dx1D_128x128x64_9.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_unitvec3_cosine_2Dx1D_128x128x64_9.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_vec1_2Dx1D_128x128x64_9.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_vec2_2Dx1D_128x128x64_9.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_0.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_1.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_10.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_11.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_12.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_13.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_14.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_15.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_16.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_17.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_18.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_19.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_2.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_20.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_21.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_22.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_23.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_24.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_25.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_26.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_27.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_28.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_29.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_3.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_30.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_31.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_32.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_33.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_34.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_35.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_36.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_37.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_38.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_39.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_4.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_40.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_41.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_42.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_43.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_44.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_45.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_46.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_47.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_48.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_49.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_5.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_50.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_51.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_52.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_53.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_54.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_55.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_56.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_57.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_58.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_59.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_6.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_60.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_61.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_62.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_63.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_7.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_8.png" />
-    <Image Include="STBN\stbn_vec3_2Dx1D_128x128x64_9.png" />
+    <CopyFileToFolders Include="..\Binary\glew32.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\glfw3.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_core.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_cpu.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_cuda.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_hip.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_sycl.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_sycl_xehpg.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_sycl_xelp.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\pi_level_zero.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\pi_win_proxy_loader.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\sycl7.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\tbb12.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\tbbbind.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\tbbbind_2_0.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Binary\tbbbind_2_5.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Текст.txt" />
+    <None Include="base.glsl" />
+    <None Include="stbn.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

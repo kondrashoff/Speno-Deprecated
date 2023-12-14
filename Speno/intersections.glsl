@@ -207,269 +207,6 @@ bool intersectSceneBVH(inout Hit hit, in Ray ray) {
     return is_hit;
 }
 
-/*
-bool intersectScene3DDA(inout Hit hit, in Ray ray) {
-    is_volume = false;
-    is_light = false;
-    vec3 position = floor(ray.origin);
-    vec3 rayInverse = 1.0 / ray.direction;
-    vec3 raySign = sign(ray.direction);
-    vec3 dist = (position - ray.origin + 0.5 + raySign * 0.5) * rayInverse;
-
-    vec3 minMask = vec3(0.0);
-
-    int steps = u_samples > 1u ? 3172 : 256;
-    for (int i = 0; i < steps && ((position.y < 500.0 && position.y > -1.0) || (ray.origin.y >= 500.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0) && position.x > -4096.0 && position.x < 4096.0 && position.z > -4096.0 && position.z < 4096.0; i++) {
-    //for (int i = 0; i < 128 && (position.y < 255.0 || (ray.origin.y >= 255.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0); i++) {
-        float current_height = texelFetch(map_texture, ivec2(position.xz) + 4096, 0).r * 255.0;
-        
-        if (position.y <= current_height) {
-            vec3 normal = -minMask * raySign;
-
-            vec3 minPos = (position - ray.origin + 0.5 - 0.5 * vec3(raySign)) * rayInverse;
-            float intersection = max(minPos.x, max(minPos.y, minPos.z));
-
-            hit.t = intersection;
-            hit.normal = faceforward(normal, ray.direction, normal);
-
-            vec3 abs_normal = abs(normal);
-            vec3 intr_pos = -(ray.origin + hit.t * ray.direction);
-
-            float x_0_0 = texelFetch(map_texture, ivec2(position.xz + vec2(-1, -1)) + 4096, 0).r * 255.0;
-            float x_0_1 = texelFetch(map_texture, ivec2(position.xz + vec2(-1,  0)) + 4096, 0).r * 255.0;
-            float x_0_2 = texelFetch(map_texture, ivec2(position.xz + vec2(-1,  1)) + 4096, 0).r * 255.0;
-            float x_1_0 = texelFetch(map_texture, ivec2(position.xz + vec2( 0, -1)) + 4096, 0).r * 255.0;
-            float x_1_1 = texelFetch(map_texture, ivec2(position.xz + vec2( 0,  0)) + 4096, 0).r * 255.0;
-            float x_1_2 = texelFetch(map_texture, ivec2(position.xz + vec2( 0,  1)) + 4096, 0).r * 255.0;
-            float x_2_0 = texelFetch(map_texture, ivec2(position.xz + vec2( 1, -1)) + 4096, 0).r * 255.0;
-            float x_2_1 = texelFetch(map_texture, ivec2(position.xz + vec2( 1,  0)) + 4096, 0).r * 255.0;
-            float x_2_2 = texelFetch(map_texture, ivec2(position.xz + vec2( 1,  1)) + 4096, 0).r * 255.0;
-
-            float max_dfdi = max(x_0_0, max(x_0_1, max(x_0_2, max(x_1_0, max(x_1_1, max(x_1_2, max(x_2_0, max(x_2_1, x_2_2))))))));
-            float min_dfdi = min(x_0_0, min(x_0_1, min(x_0_2, min(x_1_0, min(x_1_1, min(x_1_2, min(x_2_0, min(x_2_1, x_2_2))))))));
-
-            if(max_dfdi - current_height > 1.0 || min_dfdi - current_height < -1.0 || position.y < current_height - 1) {
-                if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                    hit.color = texture(stone_texture, intr_pos.zy).rgb;
-                }
-                else if(abs_normal.y > abs_normal.z) {
-                    hit.color = texture(stone_texture, intr_pos.xz).rgb;
-                }
-                else {
-                    hit.color = texture(stone_texture, intr_pos.xy).rgb;
-                }
-            }
-            else {
-                float coef = perlin_noise(position * 0.1);
-
-                if(coef > 0.5) {
-                    if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                        hit.color = texture(dirt_texture, intr_pos.zy).rgb;
-                    }
-                    else if(abs_normal.y > abs_normal.z) {
-                        hit.color = texture(dirt_texture, intr_pos.xz).rgb;
-                    }
-                    else {
-                        hit.color = texture(dirt_texture, intr_pos.xy).rgb;
-                    }
-                }
-                else {
-                    if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                        hit.color = texture(grass_side_texture, intr_pos.zy).rgb;
-                    }
-                    else if(abs_normal.y > abs_normal.z) {
-                        if(normal.y < 0.0) hit.color = texture(dirt_texture, intr_pos.xz).rgb;
-                        else hit.color = texture(grass_top_texture, intr_pos.xz).rgb;
-                    }
-                    else {
-                        hit.color = texture(grass_side_texture, intr_pos.xy).rgb;
-                    }
-                }
-            }
-
-            return true;
-        }
-        else if(randomFloat() < exp(-0.08 * position.y)) {
-            is_volume = true;
-
-            minMask = step(dist.xyz, dist.yzx) * step(dist.xyz, dist.zxy);
-            position += randomFloat() * minMask * raySign;
-
-            vec3 minPos = (position - ray.origin + 0.5 - 0.5 * vec3(raySign)) * rayInverse;
-            float intersection = max(minPos.x, max(minPos.y, minPos.z));
-
-            hit.t = intersection;
-            hit.normal = randomOnSphere();
-            hit.color = vec3(0.46, 0.58, 0.67);
-            return true;
-        }
-        else if(randomFloat() < 0.025) {
-            float noise_val = 
-            0.5 * perlin_noise((position+vec3(1938, 193, 417)) * 0.001) 
-            + 0.25 * perlin_noise((position+vec3(138, 71, 5675)) * 0.01) 
-            + 0.125 * perlin_noise((position+vec3(165478, 67354, 7)) * 0.04) 
-            + 0.0625 * perlin_noise((position+vec3(8, 1, 4173)) * 0.2);
-
-            if(noise_val > 1.0 - exp(-0.007 * abs(position.y - 350.0))) {
-                is_volume = true;
-
-                minMask = step(dist.xyz, dist.yzx) * step(dist.xyz, dist.zxy);
-                position += randomFloat() * minMask * raySign;
-
-                vec3 minPos = (position - ray.origin + 0.5 - 0.5 * vec3(raySign)) * rayInverse;
-                float intersection = max(minPos.x, max(minPos.y, minPos.z));
-
-                hit.t = intersection;
-                hit.normal = randomOnSphere();
-                hit.color = vec3(0.83);
-                return true;    
-            }
-        }
-        
-        minMask = step(dist.xyz, dist.yzx) * step(dist.xyz, dist.zxy);
-        dist += minMask * raySign * rayInverse;
-        position += minMask * raySign;
-    }
-
-    return false;
-}
-
-bool intersectScene3DDAtest(inout Hit hit, in Ray ray) {
-    is_volume = false;
-    is_light = false;
-    vec3 position = floor(ray.origin);
-    vec3 rayInverse = 1.0 / ray.direction;
-    vec3 raySign = sign(ray.direction);
-    vec3 dist = (position - ray.origin + 0.5 + raySign * 0.5) * rayInverse;
-
-    vec3 minMask = vec3(0.0);
-
-    int steps = u_samples > 1u ? 8192 : 256;
-    for (int i = 0; i < steps && ((position.y < 255.0 && position.y > -1.0) || (ray.origin.y >= 255.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0) && position.x > -4096.0 && position.x < 4096.0 && position.z > -4096.0 && position.z < 4096.0; i++) {
-    //for (int i = 0; i < 128 && (position.y < 255.0 || (ray.origin.y >= 255.0 && ray.direction.y < 0.0)) && (position.y >= 0.0 || ray.origin.y <= 0.0); i++) {
-        float current_height = texelFetch(map_texture, ivec2(position.xz) + 4096, 0).r * 255.0;
-        
-        if (position.y <= current_height) {
-            vec3 normal = -minMask * raySign;
-
-            vec3 minPos = (position - ray.origin + 0.5 - 0.5 * vec3(raySign)) * rayInverse;
-            float intersection = max(minPos.x, max(minPos.y, minPos.z));
-
-            hit.t = intersection;
-            hit.normal = faceforward(normal, ray.direction, normal);
-
-            vec3 abs_normal = abs(normal);
-            vec3 intr_pos = -(ray.origin + hit.t * ray.direction);
-
-            float x_0_0 = texelFetch(map_texture, ivec2(position.xz + vec2(-1, -1)) + 4096, 0).r * 255.0;
-            float x_0_1 = texelFetch(map_texture, ivec2(position.xz + vec2(-1,  0)) + 4096, 0).r * 255.0;
-            float x_0_2 = texelFetch(map_texture, ivec2(position.xz + vec2(-1,  1)) + 4096, 0).r * 255.0;
-            float x_1_0 = texelFetch(map_texture, ivec2(position.xz + vec2( 0, -1)) + 4096, 0).r * 255.0;
-            float x_1_1 = texelFetch(map_texture, ivec2(position.xz + vec2( 0,  0)) + 4096, 0).r * 255.0;
-            float x_1_2 = texelFetch(map_texture, ivec2(position.xz + vec2( 0,  1)) + 4096, 0).r * 255.0;
-            float x_2_0 = texelFetch(map_texture, ivec2(position.xz + vec2( 1, -1)) + 4096, 0).r * 255.0;
-            float x_2_1 = texelFetch(map_texture, ivec2(position.xz + vec2( 1,  0)) + 4096, 0).r * 255.0;
-            float x_2_2 = texelFetch(map_texture, ivec2(position.xz + vec2( 1,  1)) + 4096, 0).r * 255.0;
-
-            float max_dfdi = max(x_0_0, max(x_0_1, max(x_0_2, max(x_1_0, max(x_1_1, max(x_1_2, max(x_2_0, max(x_2_1, x_2_2))))))));
-            float min_dfdi = min(x_0_0, min(x_0_1, min(x_0_2, min(x_1_0, min(x_1_1, min(x_1_2, min(x_2_0, min(x_2_1, x_2_2))))))));
-
-            if(max_dfdi - current_height > 1.0 || min_dfdi - current_height < -1.0 || position.y < current_height - 1) {
-                if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                    hit.color = texture(stone_texture, intr_pos.zy).rgb;
-                }
-                else if(abs_normal.y > abs_normal.z) {
-                    hit.color = texture(stone_texture, intr_pos.xz).rgb;
-                }
-                else {
-                    hit.color = texture(stone_texture, intr_pos.xy).rgb;
-                }
-            }
-            else {
-                float coef = perlin_noise(position * 0.1);
-
-                if(coef > 0.5) {
-                    if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                        hit.color = texture(dirt_texture, intr_pos.zy).rgb;
-                    }
-                    else if(abs_normal.y > abs_normal.z) {
-                        hit.color = texture(dirt_texture, intr_pos.xz).rgb;
-                    }
-                    else {
-                        hit.color = texture(dirt_texture, intr_pos.xy).rgb;
-                    }
-                }
-                else {
-                    if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                        hit.color = texture(grass_side_texture, intr_pos.zy).rgb;
-                    }
-                    else if(abs_normal.y > abs_normal.z) {
-                        if(normal.y < 0.0) hit.color = texture(dirt_texture, intr_pos.xz).rgb;
-                        else hit.color = texture(grass_top_texture, intr_pos.xz).rgb;
-                    }
-                    else {
-                        hit.color = texture(grass_side_texture, intr_pos.xy).rgb;
-                    }
-                }
-            }
-
-            return true;
-        }
-        
-        minMask = step(dist.xyz, dist.yzx) * step(dist.xyz, dist.zxy);
-        dist += minMask * raySign * rayInverse;
-        position += minMask * raySign;
-    }
-
-    return false;
-}
-
-bool intersectScene3DDAtest2(inout Hit hit, in Ray ray) {
-    is_volume = false;
-    is_light = false;
-    vec3 position = floor(ray.origin);
-    vec3 rayInverse = 1.0 / ray.direction;
-    vec3 raySign = sign(ray.direction);
-    vec3 dist = (position - ray.origin + 0.5 + raySign * 0.5) * rayInverse;
-    vec3 minMask = vec3(0.0);
-    uint steps = u_samples < 2u ? 64u : 512u;
-
-    for (uint i = 0u; i < steps; i++) {
-        float map = 0.5 * perlin_noise(position * 0.01) + 0.5 * perlin_noise(position * 0.1) + exp(0.05 * position.y);
-        
-        if (map < 0.5) {
-            vec3 normal = -minMask * raySign;
-
-            vec3 minPos = (position - ray.origin + 0.5 - 0.5 * vec3(raySign)) * rayInverse;
-            float intersection = max(minPos.x, max(minPos.y, minPos.z));
-
-            hit.t = intersection;
-            hit.normal = faceforward(normal, ray.direction, normal);
-
-            vec3 abs_normal = abs(normal);
-            vec3 intr_pos = -(ray.origin + hit.t * ray.direction);
-
-            if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                hit.color = texture(stone_texture, intr_pos.zy).rgb;
-            }
-            else if(abs_normal.y > abs_normal.z) {
-                hit.color = texture(stone_texture, intr_pos.xz).rgb;
-            }
-            else {
-                hit.color = texture(stone_texture, intr_pos.xy).rgb;
-            }
-
-            return true;
-        }
-
-        minMask = step(dist.xyz, dist.yzx) * step(dist.xyz, dist.zxy);
-        dist += minMask * raySign * rayInverse;
-        position += minMask * raySign;
-    }
-
-    return false;
-}
-*/
 bool continue_condition(in Ray ray, in vec3 position, in float max_pos) {
     return (position.x >= 0.0     || ray.origin.x < 0.0    ) &&
            (position.x <= max_pos || ray.origin.x > max_pos) &&
@@ -479,11 +216,8 @@ bool continue_condition(in Ray ray, in vec3 position, in float max_pos) {
            (position.z <= max_pos || ray.origin.z > max_pos);
 }
 
-bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
+bool intersectScene3DDA(inout Hit hit, in Ray ray) {
     hit.t = MAXIMUM_DISTANCE;
-
-    is_volume = false;
-    is_light = false;
 
     vec3 position = floor(ray.origin);
     vec3 rayInverse = 1.0 / ray.direction;
@@ -522,36 +256,49 @@ bool intersectScene3DDAtest3(inout Hit hit, in Ray ray) {
 
             if(block == 1) {
                 if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 0)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.zy, 0)).rgb;
                 }
                 else if(abs_normal.y > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 0)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xz, 0)).rgb;
                 }
                 else {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 0)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xy, 0)).rgb;
                 }
             }
             else if(block == 2) {
                 if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 2)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.zy, 2)).rgb;
                 }
                 else if(abs_normal.y > abs_normal.z) {
-                    if(normal.y < 0.0) hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 3)).rgb;
-                    else hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 1)).rgb;
+                    if(normal.y < 0.0) hit.color = texture(voxel_textures, vec3(intr_pos.xz, 3)).rgb;
+                    else hit.color = texture(voxel_textures, vec3(intr_pos.xz, 1)).rgb;
                 }
                 else {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 2)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xy, 2)).rgb;
                 }
             }
             else if(block == 3) {
                 if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.zy, 3)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.zy, 3)).rgb;
                 }
                 else if(abs_normal.y > abs_normal.z) {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xz, 3)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xz, 3)).rgb;
                 }
                 else {
-                    hit.color = texture(voxel_game_textures, vec3(intr_pos.xy, 3)).rgb;
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xy, 3)).rgb;
+                }
+            }
+            else {
+                int index = block;
+
+                if(abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z) {
+                    hit.color = texture(voxel_textures, vec3(intr_pos.zy, index)).rgb;
+                }
+                else if(abs_normal.y > abs_normal.z) {
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xz, index)).rgb;
+                }
+                else {
+                    hit.color = texture(voxel_textures, vec3(intr_pos.xy, index)).rgb;
                 }
             }
 
@@ -576,14 +323,26 @@ bool intersectSceneDefault(inout Hit hit, in Ray ray) {
 
         if(intersectTwoSidedTriangle(hit, ray, triangle)) {
             hit.color = triangle.color;
+            hit.color = vec3(0.36, 0.05, 0.085);
             is_hit = true;
         }
+    }
+
+    if(is_hit) {
+        vec3 noise_pos = 0.5 * (ray.origin + ray.direction * hit.t);
+        float n1 = fbm(2.0 * noise_pos, 8);
+        n1 = 0.33 + 0.33 * (1.0 + fbm(2.0 * n1 + noise_pos + vec3(847, 84, 489), 8));
+        hit.color *= n1;
+        hit.color = mix(hit.color, vec3(0.12, 0.45, 0.15), pow(dot(hit.normal, vec3(0, 1, 0)), 2.0));
     }
 
     return is_hit;
 }
 
 bool intersectScene(inout Hit hit, in Ray ray, in bool use_voxels) {
-    if(use_voxels) return intersectScene3DDAtest3(hit, ray);
+    is_volume = false;
+    is_light = false;
+
+    if(use_voxels) return intersectScene3DDA(hit, ray);
     else return intersectSceneDefault(hit, ray);
 }

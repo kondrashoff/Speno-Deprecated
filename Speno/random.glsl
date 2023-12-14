@@ -1,24 +1,4 @@
 void setRandomSeed() {
-    if(u_samples < 65u) {
-        float stbn_seed = texelFetch(stbn_scalar_texture, ivec3(gl_FragCoord.xy, u_frame % 64) % 128, 0).r;
-        random_seed = uint(stbn_seed * 65535.0);
-
-        uvec2 c = uvec2(gl_FragCoord.xy) / 128u;
-        uint max_c = uint(u_resolution.y) / 128u;
-        uint quad = c.x * max_c + c.y;
-
-        stbn_scalar_shift += quad;
-        stbn_vec1_shift += quad;
-        stbn_vec2_shift += quad;
-        stbn_vec3_shift += quad;
-        stbn_unitvec1_shift += quad;
-        stbn_unitvec2_shift += quad;
-        stbn_unitvec3_shift += quad;
-        stbn_unitvec3_cosine_shift += quad;
-
-        return;
-    }
-
     random_seed = uint(gl_FragCoord.x) + uint(gl_FragCoord.y) * uint(u_resolution.x);
     random_seed *= u_frame_seed + 1u;
 }
@@ -45,25 +25,33 @@ highp float floatConstruct(highp uint m) {
     return f - 1.0;                        // Range [0:1]
 }
 
+float random8BitFloat() {
+    if(stbn.use) {
+        return getScalarSTBN();
+    }
+
+    return floatConstruct(randomUint());
+}
+
 float randomFloat() {
-    if(u_samples < 65u) {
-        return texelFetch(stbn_vec1_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec1_shift++) % 64) % 128, 0).r;
+    if(stbn.use) {
+        return getVec1STBN();
     }
        
     return floatConstruct(randomUint());
 }
 
 vec2 randomVec2() {
-    if(u_samples < 65u) {
-        return texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg;
+    if(stbn.use) {
+        return getVec2STBN();
     }
         
     return vec2(randomFloat(), randomFloat());
 }
 
 vec3 randomVec3() {
-    if(u_samples < 65u) {
-        return texelFetch(stbn_vec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec3_shift++) % 64) % 128, 0).rgb;
+    if(stbn.use) {
+        return getVec3STBN();
     }
 
     return vec3(randomFloat(), randomFloat(), randomFloat());

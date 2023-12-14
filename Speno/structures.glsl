@@ -30,6 +30,7 @@ struct Hit {
     float t;
     vec3 normal;
     vec3 color;
+    float emmitance;
 };
 
 struct Interval {
@@ -66,26 +67,36 @@ struct Chunk {
     int block[16][255][16];
 };
 
-layout(std430, binding = 0) buffer SSBO_Camera {
+struct STBN {
+    uint cscalar;
+    uint cvec1, cvec2, cvec3;
+    uint cunitvec1, cunitvec2, cunitvec3;
+    uint cunitvec3_cosine, cunitvec3_hdri;
+    ivec2 c;
+    bool use;
+    bool use2;
+} stbn;
+
+layout(std430, binding = 0) readonly buffer SSBO_Camera {
     Camera camera;
 };
 
-layout(std430, binding = 1) buffer SSBO_Triangles {
+layout(std430, binding = 1) readonly buffer SSBO_Triangles {
     Triangle triangles[];
 };
 
-layout(std430, binding = 2) buffer SSBO_BVH_Nodes {
+layout(std430, binding = 2) readonly buffer SSBO_BVH_Nodes {
     BVH_Node nodes[];
 };
 
-layout(std430, binding = 3) buffer SSBO_Sky {
+layout(std430, binding = 3) readonly buffer SSBO_Sky {
     Sky sky;
 };
 
-layout(std430, binding = 4) buffer SSBO_Old_Camera {
+layout(std430, binding = 4) readonly buffer SSBO_Old_Camera {
     Camera old_camera;
 };
 
-layout(std430, binding = 5) buffer SSBO_Blocks {
+layout(std430, binding = 5) readonly buffer SSBO_Blocks {
     Chunk chunks[];
 };

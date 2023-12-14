@@ -30,6 +30,7 @@ public:
 	Engine() {
 		//sky.type = SKY_TYPE_DEFAULT;
 		//sky.type = SKY_TYPE_BLACK;
+		//sky.type = SKY_TYPE_HDRI;
 		if (!glfwInit()) {
 			std::cerr << "Failed to initialize GLFW.";
 			exit(EXIT_FAILURE);
@@ -84,7 +85,23 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+
+		if (sky.type == SKY_TYPE_HDRI) {
+			int hdri_width, hdri_height, hdri_comp;
+			std::string path_to_hdri = "C:/Users/Admin/source/repos/Speno/Texture/Hdri/studio_2k.png";
+			float* hdri = stbi_loadf(path_to_hdri.c_str(), &hdri_width, &hdri_height, &hdri_comp, 4);
+
+			if (!hdri) {
+				std::cout << "Failed to load hdri: " << path_to_hdri << std::endl;
+				exit(EXIT_FAILURE);
+			}
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, hdri_width, hdri_height, 0, GL_RGBA, GL_FLOAT, hdri);
+		}
+		else {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+		}
+
 		glBindTexture(GL_TEXTURE_2D, 0);
 
 		glGenFramebuffers(1, &hdri_framebuffer);
@@ -110,7 +127,7 @@ public:
 		setupUnitvec3STBN();
 		setupUnitvec3cosineSTBN();
 		activateAllSTBNTextures();
-		setupVoxelGameTextures();
+		setupVoxelTextures();
 		
 		resolution_location = glGetUniformLocation(main_program, "u_resolution");
 		frame_location      = glGetUniformLocation(main_program, "u_frame");
@@ -191,8 +208,9 @@ public:
 
 			int width, height;
 			glfwGetFramebufferSize(window, &width, &height);
-
 			glViewport(0, 0, width, height);
+			glClear(GL_COLOR_BUFFER_BIT);
+			glClear(GL_STENCIL_BUFFER_BIT);
 
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_camera);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), &camera);
@@ -200,23 +218,25 @@ public:
 			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_old_camera);
 			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), &old_camera);
 
-			glUseProgram(hdri_program);
+			if (sky.type != SKY_TYPE_HDRI) {
+				glUseProgram(hdri_program);
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, hdri_texture);
-			glUniform1i(glGetUniformLocation(hdri_program, "previous_hdri_texture"), 0);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, hdri_texture);
+				glUniform1i(glGetUniformLocation(hdri_program, "previous_hdri_texture"), 0);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, hdri_framebuffer);
+				glBindFramebuffer(GL_FRAMEBUFFER, hdri_framebuffer);
 
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			}
 
 			glUseProgram(main_program);
 
 			glUniform1ui(frame_location, frame);
 			glUniform1ui(samples_location, samples);
-			glUniform1ui(frame_seed_location, rand());
+			if(samples > 64) glUniform1ui(frame_seed_location, rand());
 			glUniform1f(time_location, time);
 			glUniform1f(delta_time_location, delta_time);
 
@@ -261,6 +281,7 @@ public:
 
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, albedo_texture);
+			glGenerateMipmap(GL_TEXTURE_2D);
 			glUniform1i(glGetUniformLocation(denoiser_program, "albedo_texture"), 1);
 
 			glActiveTexture(GL_TEXTURE2);
@@ -291,21 +312,24 @@ public:
 			glBindTexture(GL_TEXTURE_2D, denoised_texture);
 			glUniform1i(glGetUniformLocation(postprocess_program, "rendered_frame"), 0);
 
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, albedo_texture);
+			glUniform1i(glGetUniformLocation(postprocess_program, "albedo_texture"), 1);
+
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
 			glUseProgram(0);
 
+			glfwSwapBuffers(window);
+
+			delta_time = (float)glfwGetTime() - time;
 			old_camera = camera;
 
+			glfwPollEvents();
 			processCameraMovement();
 
 			if (is_rendering) samples++;
 			frame++;
-			
-			glfwSwapBuffers(window);
-			glfwPollEvents();
-
-			delta_time = (float)glfwGetTime() - time;
 		}
 	}
 
@@ -364,38 +388,11 @@ private:
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_bvh_nodes);
 	}
 
-	void setupScalarSTBN() {
-		glGenTextures(1, &stbn_scalar_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_scalar_texture_array);
+	void setupVoxelTextures() {
+		glGenTextures(1, &voxel_texture_array);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_texture_array);
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R8, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_scalar_2Dx1Dx1D_128x128x64x1_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			unsigned char* stbn_texture = stbi_load(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 1);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RED, GL_UNSIGNED_BYTE, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
-			}
-
-			stbi_image_free(stbn_texture);
-		}
-	}
-
-	void setupVoxelGameTextures() {
-		glGenTextures(1, &voxel_game_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_game_texture_array);
-
-		std::string filepath = "C:/Users/Admin/source/repos/Speno/Speno/Textures/";
+		std::string filepath = "C:/Users/Admin/source/repos/Speno/Texture/Voxel/";
 		std::vector<std::string> filenames;
 		filenames.push_back("stone");
 		filenames.push_back("grass_top");
@@ -430,9 +427,36 @@ private:
 		}
 
 		glActiveTexture(GL_TEXTURE14);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_game_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "voxel_game_textures"), 14);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_texture_array);
+		glUniform1i(glGetUniformLocation(main_program, "voxel_textures"), 14);
 		glActiveTexture(GL_TEXTURE0);
+	}
+
+	void setupScalarSTBN() {
+		glGenTextures(1, &stbn_scalar_texture_array);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_scalar_texture_array);
+
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R8, 128, 128, 64);
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		for (int i = 0; i < 64; i++) {
+			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_scalar_2Dx1Dx1D_128x128x64x1_" + std::to_string(i) + ".png";
+			int stbn_width, stbn_height, stbn_num_channels;
+			unsigned char* stbn_texture = stbi_load(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 1);
+
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RED, GL_UNSIGNED_BYTE, stbn_texture);
+
+			if (!stbn_texture) {
+				printf("Failed to load texture: %s\n", stbn_filename.c_str());
+				exit(EXIT_FAILURE);
+			}
+
+			stbi_image_free(stbn_texture);
+		}
 	}
 
 	void setupVec1STBN() {
@@ -612,9 +636,9 @@ private:
 			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec3_cosine_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
 			int stbn_width, stbn_height, stbn_num_channels;
 			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
+			
 			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-
+			
 			if (!stbn_texture) {
 				printf("Failed to load texture: %s\n", stbn_filename.c_str());
 				exit(EXIT_FAILURE);
@@ -794,7 +818,7 @@ private:
 				int width, height;
 				glfwGetFramebufferSize(window, &width, &height);
 
-				GLubyte* pixels = new GLubyte[width * height * 3];
+				unsigned char* pixels = new unsigned char[width * height * 3];
 				glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
 				std::time_t now = std::time(nullptr);
@@ -866,8 +890,8 @@ private:
 				int centerX = width / 2;
 				int centerY = height / 2;
 
-				float x_velocity = (centerX - (float)mouse_xpos) / width  * 45.0f;
-				float y_velocity = (centerY - (float)mouse_ypos) / height * 45.0f;
+				float x_velocity = (centerX - (float)mouse_xpos) / width  * 90.0f;
+				float y_velocity = (centerY - (float)mouse_ypos) / height * 90.0f;
 
 				camera.pitch += y_velocity;
 				camera.pitch = std::clamp(camera.pitch, -90.0f, 90.0f);
@@ -1014,7 +1038,7 @@ private:
 	BlockWorld world; 
 	Camera camera;
 	Camera old_camera;
-	Sky sky = Sky(30.0, 60.0);
+	Sky sky = Sky(45.0, 60.0);
 	
 	GLuint ssbo_camera;
 	GLuint ssbo_old_camera;
@@ -1040,7 +1064,7 @@ private:
 	GLuint stbn_unitvec3_texture_array;
 	GLuint stbn_unitvec3_cosine_texture_array;
 
-	GLuint voxel_game_texture_array;
+	GLuint voxel_texture_array;
 
 	GLuint diffuse_texture,		   // RGB - pathtraced color; A - number of accumulated colors
 		albedo_texture,			   // RGB - albedo

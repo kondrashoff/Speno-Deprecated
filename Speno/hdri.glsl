@@ -10,6 +10,7 @@ uniform sampler2D previous_hdri_texture;
 #define SKY_TYPE_BLACK     0
 #define SKY_TYPE_DEFAULT   1
 #define SKY_TYPE_REALISTIC 2
+#define SKY_TYPE_HDRI      3
 
 struct Sky {
 	int type;
@@ -20,7 +21,7 @@ struct Sky {
     float yaw;
 };
 
-layout(std430, binding = 3) buffer SSBO_Sky {
+layout(std430, binding = 3) readonly buffer SSBO_Sky {
     Sky sky;
 };
 

@@ -1,18 +1,48 @@
-vec2 spherical_map(vec3 p) {
+vec2 spherical_map(in vec3 p) {
     vec2 uv = vec2(atan(p.z, p.x), asin(p.y));
     uv *= vec2(1.0 / TAU, 1.0 / PI); uv += 0.5;
     return uv;
 }
 
-vec3 spherical_map(vec2 uv) {
+vec3 spherical_map(in vec2 uv) {
     uv -= 0.5; uv *= vec2(TAU, PI);
     vec2 s = sin(uv), c = cos(uv);
     return vec3(c.x*c.y, s.y, s.x*c.y);
 }
 
+vec3 rotateX(in vec3 v, float angle) {
+    float sin_x = sin(angle);
+    float cos_x = sqrt(1.0 - sin_x * sin_x);
+
+    v.y = cos_x * v.y - sin_x * v.z;
+    v.z = sin_x * v.y + cos_x * v.z;
+
+    return v;
+}
+
+vec3 rotateY(in vec3 v, float angle) {
+    float sin_x = sin(angle);
+    float cos_x = sqrt(1.0 - sin_x * sin_x);
+
+    v.x = cos_x * v.x + sin_x * v.z;
+    v.z = cos_x * v.z - sin_x * v.x;
+
+    return v;
+}
+
+vec3 rotateZ(in vec3 v, float angle) {
+    float sin_x = sin(angle);
+    float cos_x = sqrt(1.0 - sin_x * sin_x);
+
+    v.x = cos_x * v.x - sin_x * v.y;
+    v.y = sin_x * v.x + cos_x * v.y;
+
+    return v;
+}
+
 vec2 pixelSampleSquare() {
-    if(u_samples < 65u) {
-        vec2 r = 2.0 * texelFetch(stbn_vec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_vec2_shift++) % 64) % 128, 0).rg - 1.0;
+    if(stbn.use) {
+        vec2 r = 2.0 * getVec2STBN() - 1.0;
         return r / min(u_resolution.x, u_resolution.y);
     }
 
@@ -20,8 +50,8 @@ vec2 pixelSampleSquare() {
 }
 
 vec2 randomInUnitDisk() {
-    if(u_samples < 65u) {
-        return 2.0 * texelFetch(stbn_unitvec2_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec2_shift++) % 64) % 128, 0).rg - 1.0;
+    if(stbn.use) {
+        return 2.0 * getUnitvec2STBN() - 1.0;
     }
 
     float r = sqrt(randomFloat());
@@ -31,8 +61,8 @@ vec2 randomInUnitDisk() {
 }
 
 vec3 randomOnSphere() {
-    if(u_samples < 65u) {
-        return 2.0 * texelFetch(stbn_unitvec3_texture, ivec3(gl_FragCoord.xy, (u_frame + stbn_unitvec3_shift++) % 64) % 128, 0).rgb - 1.0;
+    if(stbn.use) {
+        return 2.0 * getUnitvec3STBN() - 1.0;
     }
 
     float r1 = randomFloat();
@@ -57,15 +87,21 @@ vec3 sampleBox(AABB box) {
     return box.min + randomVec3() * (box.max - box.min);
 }
 
-vec3 randomCosineDirection() {
+vec4 randomCosineDirectionWithPDF() {
+    if(stbn.use) {
+        vec4 data = getUnitvec3cosineSTBN();
+        data.rgb = 2.0 * data.rgb - 1.0;
+        return data;
+    }
+
     vec2 r = randomVec2();
-    
+
     float phi = TAU * r.x;
     float x = cos(phi) * sqrt(r.y);
     float y = sin(phi) * sqrt(r.y);
     float z = sqrt(1.0 - r.y);
 
-    return vec3(x, y, z);
+    return vec4(x, y, z, -1);
 }
 
 mat3 onbBuildFromW(in vec3 w) {
@@ -103,7 +139,7 @@ Ray getRay() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
 
     uv = 2.0*uv - 1.0;
-    uv += pixelSampleSquare();
+    //uv += pixelSampleSquare();
     uv.x *= u_resolution.x / u_resolution.y;
 
     //float tan_half_fov = tan(radians(camera.fov / 2.0));
@@ -164,26 +200,35 @@ Ray getRay(in Camera cam, in vec2 uv) {
     uv = 2.0*uv - 1.0;
     uv.x *= u_resolution.x / u_resolution.y;
 
-    float tan_half_fov = tan(radians(cam.fov / 2.0));
+    //float tan_half_fov = tan(radians(cam.fov / 2.0));
 
     vec3 w = normalize(cam.lookdir);
     vec3 u = normalize(cross(vec3(0.0, 1.0, 0.0), w));
     vec3 v = cross(w, u);
 
-    //vec3 direction = w * 2.0 + u * uv.x + v * uv.y;
-    vec3 direction = u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
+    vec3 direction = w * 2.0 + u * uv.x + v * uv.y;
+    //vec3 direction = u * uv.x * tan_half_fov + v * uv.y * tan_half_fov + w;
     direction = normalize(direction);
 
     return Ray(cam.lookfrom, direction);
 }
 
 vec3 getSkyColor(in Ray ray) {
-    vec2 uv = spherical_map(ray.direction);
-    return texture(hdri_texture, uv).rgb;
+    if(sky.type == SKY_TYPE_HDRI) {
+        vec2 uv = spherical_map(-ray.direction);
+        vec3 color = texture(hdri_texture, uv).rgb;
+        //return color * smoothstep(0.0, 1.0, clamp(10.0 * dot(ray.direction, vec3(0, 1, 0)), 0.0, 1.0));
+        //return pow(1.0 + 5.0 * color, vec3(2.5)) - 1.0;
+        return color;
+    }
+    else {
+        vec2 uv = spherical_map(ray.direction);
+        return texture(hdri_texture, uv).rgb;
+    }
 }
 
 vec3 getFinalColor(in vec3 color, in float pdf, in vec3 light_color, in vec3 light_color_sum, in uint total_light_colors) {
-    light_color = clamp(light_color, 0.0, 2.0);
+    light_color = clamp(light_color, 0.0, 5.0);
     if(any(isnan(light_color))) light_color = vec3(0.0);
 
     vec3 final_color = (color * light_color) / pdf;
@@ -198,14 +243,14 @@ vec3 getFinalColor(in vec3 color, in float pdf, in vec3 light_color, in vec3 lig
 vec3 getFinalColor(in vec3 light_color_sum, in uint total_light_colors) {
     vec3 final_color = light_color_sum / float(total_light_colors);
                 
-    final_color = clamp(final_color, 0.0, 65535.0);
+    final_color = clamp(final_color, 0.0, 5.0);
     if(any(isnan(final_color))) final_color = vec3(0.0);
 
     return final_color;
 }
 
 vec3 getFinalColor(in vec3 color) {
-    vec3 final_color = clamp(color, 0.0, 65535.0);
+    vec3 final_color = clamp(color, 0.0, 5.0);
     if(any(isnan(final_color))) final_color = vec3(0.0);
 
     return final_color;

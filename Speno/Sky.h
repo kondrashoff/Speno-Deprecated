@@ -5,12 +5,13 @@
 #define SKY_TYPE_BLACK     0
 #define SKY_TYPE_DEFAULT   1
 #define SKY_TYPE_REALISTIC 2
+#define SKY_TYPE_HDRI      3
 
 struct Sky {
 	int type = SKY_TYPE_DEFAULT;
 	alignas(16) Vector3 sun_direction;
-	int sun_quality_i = 512;
-	int sun_quality_j = 256;
+	int sun_quality_i = 256;
+	int sun_quality_j = 128;
 	float pitch;
 	float yaw;
 
