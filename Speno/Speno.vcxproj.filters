@@ -16,142 +16,123 @@
     <Filter Include="Binary">
       <UniqueIdentifier>{f0743734-baed-4604-a26f-da5e68edf7b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{d72f4813-3c50-4ffc-9df5-e62ec00acd28}</UniqueIdentifier>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{1d5f7270-e6a7-46c4-9f82-1321ba81647a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\ImGui">
+      <UniqueIdentifier>{cf321739-4917-4c7d-8b77-2a2f1e9a35b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\glad">
+      <UniqueIdentifier>{32171bfa-f4fe-4187-85b1-4afe01f4432d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Speno.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="BlockWorld.h">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="Include\glad\glad.c">
+      <Filter>Исходные файлы\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui_demo.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui_draw.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui_impl_glfw.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui_tables.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ImGui\imgui_widgets.cpp">
+      <Filter>Файлы заголовков\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine.h">
-      <Filter>Исходные файлы</Filter>
+    <ClInclude Include="Shader\denoising_functions.glsl">
+      <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Shader\noise.glsl">
+      <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image_write.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="tiny_obj_loader.h">
+    <ClInclude Include="Shader.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Исходные файлы</Filter>
+    <ClInclude Include="Engine.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineData.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Sky.h">
-      <Filter>Исходные файлы</Filter>
+    <ClInclude Include="PerformanceMonitor.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Denoiser.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="PerlinNoise.h">
-      <Filter>Исходные файлы</Filter>
+    <ClInclude Include="Quad.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="denoiser.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="functions.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="hdri.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="intersections.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="main.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="noise.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="pathtracing.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="postprocess.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="random.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="structures.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="vertex.glsl">
-      <Filter>Shaders</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\glew32.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\glfw3.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_core.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_cpu.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_cuda.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_hip.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_sycl.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_sycl_xehpg.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\OpenImageDenoise_device_sycl_xelp.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\pi_level_zero.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\pi_win_proxy_loader.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\sycl7.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\tbb12.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\tbbbind.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\tbbbind_2_0.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Binary\tbbbind_2_5.dll">
-      <Filter>Binary</Filter>
-    </CopyFileToFolders>
+    <None Include="..\README.md" />
+    <None Include="packages.config" />
+    <None Include="Shader\main.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\random.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\vertex.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\postprocess.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\tonemap.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\output.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\intersections.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\structures.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\defines.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\stbn.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\functions.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\pathtracing.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser.glsl">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="base.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="stbn.glsl">
-      <Filter>Shaders</Filter>
-    </None>
+    <CopyFileToFolders Include="Binary\glew32.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\glfw3.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

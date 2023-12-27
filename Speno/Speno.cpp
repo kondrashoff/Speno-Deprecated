@@ -1,10 +1,9 @@
-﻿//#define DEBUG
+﻿#define SPENO_VERSION_MAJOR 0
+#define SPENO_VERSION_MINOR 2
+#define SPENO_VERSION_PATCH 0
+#define SPENO_VERSION_TWEAK 0
 
 #include "Engine.h"
-using namespace std;
-
-int main(int argc, char** argv) {
-	Engine speno;
 
 	// TODO: 
 	// 1. Изменить небо (код для его создания)
@@ -14,17 +13,13 @@ int main(int argc, char** argv) {
 	// 4. Сделать код более читабельным и добавить больше возможностей по управлению вне класса 
 	//    (чтобы было больше возможностей по настройке уже main(), а не в классе Engine)
 	// 5. Добавить загрузку текстур для 3д моделей
+	// 6. Доработать изменее размера окна (Shader::resize() работает неправильно)
+	// 7. Добавить во временную репроекцию возможность репроецировать движущиеся объекты
 
-	//string path = "C:/Users/Admin/Documents/";
-	//string filename = "cornell_box_new.obj";
-	//string filename = "grand_canyon_200k.obj";
+int main(int argc, char** argv) {
+	Engine speno;
 
-	//Mesh cornell_box(path, filename);
-	//cornell_box.buildBVH();
-	//speno.setScene(cornell_box);
-
-	speno.generateChunks();
-
+	speno.init();
 	speno.run();
 
 	return EXIT_SUCCESS;

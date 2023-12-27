@@ -1,897 +1,441 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include <fstream>
+#include <iostream>
+#include <iterator>
+#include <limits>
 #include <regex>
+#include <sstream>
+#include <string>
+#include <vector>
 
-#include <GL/glew.h>
+#include <Windows.h>
+#include <commdlg.h>
+
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_glfw.h>
+#include <ImGui/imgui_impl_opengl3.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+#include <glm/glm.hpp>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "tiny_obj_loader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include <stb_image_write.h>
 
+#include "PerformanceMonitor.h"
+#include "EngineData.h"
 #include "Mesh.h"
 #include "Camera.h"
-#include "Sky.h"
-#include "BlockWorld.h"
-
-/*
-TODO: использовать stbi_loadf(), чтобы загружать HDR во float*, 
-можно снова попробовать добваить STBN 
-*/
+#include "Quad.h"
+#include "Shader.h"
 
 class Engine {
 public:
 
-	Engine() {
-		//sky.type = SKY_TYPE_DEFAULT;
-		//sky.type = SKY_TYPE_BLACK;
-		//sky.type = SKY_TYPE_HDRI;
-		if (!glfwInit()) {
-			std::cerr << "Failed to initialize GLFW.";
-			exit(EXIT_FAILURE);
-		}
+	Engine() = default;
 
-		glfwSetErrorCallback(errorCallback);
-
+	void init(bool fullscreen = false) {
+		initGLFW();
+		
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		primary_monitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* video_mode = glfwGetVideoMode(primary_monitor);
+		initWindow(fullscreen);
+		initOpenGL();
+		initImGui();
 
-		window = glfwCreateWindow(video_mode->width, video_mode->height, "Engine", primary_monitor, NULL);
-		if (!window) {
-			std::cerr << "Failed to create window or OpenGL context.";
-			exit(EXIT_FAILURE);
-		}
+		stbi_set_flip_vertically_on_load(1);
+		stbi_flip_vertically_on_write(1);
 
-		glfwMakeContextCurrent(window);
-		glfwSwapInterval(1);
+		screen_quad.init();
+		main_program.init("main.glsl");
+		denoising_program.init("denoiser.glsl");
+		postprocess_program.init("postprocess.glsl");
+		output_program.init("output.glsl");
 
-		glfwSetWindowUserPointer(window, this);
-		glfwSetWindowFocusCallback(window, windowFocusCallbackStatic);
-		glfwSetKeyCallback(window, keyCallbackStatic);
+		glGenBuffers(1, &ubo);
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(SharedEngineData), &shared_engine_data, GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+		GLuint uboIndex = glGetUniformBlockIndex(main_program.id, "SharedEngineData");
+		glUniformBlockBinding(main_program.id, uboIndex, 0);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
 
-		GLenum err = glewInit();
-		if (err != GLEW_OK) {
-			std::cerr << "Failed to initialize GLEW: " << glewGetErrorString(err);
-			exit(EXIT_FAILURE);
-		}
+		main_program.createGBuffers(window_width, window_height, GL_RGBA32F, GL_LINEAR, GL_CLAMP_TO_EDGE);
+		denoising_program.createGBuffers(window_width, window_height, GL_RGBA32F, GL_LINEAR, GL_CLAMP_TO_EDGE);
+		postprocess_program.createFBO(window_width, window_height, GL_RGBA, GL_LINEAR, GL_CLAMP_TO_EDGE);
 
-		setupShaderProgramms();
+		denoising_program.bindTexture(0, main_program.fbo_texture, "gbufferDiffuse");
+		denoising_program.bindTexture(1, main_program.gbuffer_position_texture, "gbufferPosition");
+		denoising_program.bindTexture(2, main_program.gbuffer_normal_texture, "gbufferNormal");
+		main_program.bindTexture(3, denoising_program.fbo_texture, "gbufferPreviousDiffuse");
+		main_program.bindTexture(4, denoising_program.gbuffer_position_texture, "gbufferPreviousPosition");
+		postprocess_program.bindTexture(5, denoising_program.gbuffer_albedo_texture, "denoisedImage");
+		postprocess_program.bindTexture(6, main_program.gbuffer_albedo_texture, "gbufferAlbedo");
+		output_program.bindTexture(7, postprocess_program.fbo_texture, "postprocessedFrame");
 
-		setupScreenQuad();
-
-		setupSkySSBO();
-		setupCameraSSBO();
-		setupOldCameraSSBO();
-
-		int width, height;
-		glfwGetFramebufferSize(window, &width, &height);
-
-		glUseProgram(hdri_program);
-
-		glGenTextures(1, &hdri_texture);
-		glBindTexture(GL_TEXTURE_2D, hdri_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-		if (sky.type == SKY_TYPE_HDRI) {
-			int hdri_width, hdri_height, hdri_comp;
-			std::string path_to_hdri = "C:/Users/Admin/source/repos/Speno/Texture/Hdri/studio_2k.png";
-			float* hdri = stbi_loadf(path_to_hdri.c_str(), &hdri_width, &hdri_height, &hdri_comp, 4);
-
-			if (!hdri) {
-				std::cout << "Failed to load hdri: " << path_to_hdri << std::endl;
-				exit(EXIT_FAILURE);
-			}
-
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, hdri_width, hdri_height, 0, GL_RGBA, GL_FLOAT, hdri);
-		}
-		else {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		}
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenFramebuffers(1, &hdri_framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, hdri_framebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hdri_texture, 0);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE) {
-			std::cerr << "Failed to create framebuffer: " << status;
-			exit(EXIT_FAILURE);
-		}
-		
-		glUseProgram(main_program);
-
-		setupScalarSTBN();
-		setupVec1STBN();
-		setupVec2STBN();
-		setupVec3STBN();
-		setupUnitvec1STBN();
-		setupUnitvec2STBN();
-		setupUnitvec3STBN();
-		setupUnitvec3cosineSTBN();
-		activateAllSTBNTextures();
-		setupVoxelTextures();
-		
-		resolution_location = glGetUniformLocation(main_program, "u_resolution");
-		frame_location      = glGetUniformLocation(main_program, "u_frame");
-		samples_location    = glGetUniformLocation(main_program, "u_samples");
-		frame_seed_location = glGetUniformLocation(main_program, "u_frame_seed");
-		time_location       = glGetUniformLocation(main_program, "u_time");
-		delta_time_location = glGetUniformLocation(main_program, "u_delta_time");
-
-		glUniform2f(resolution_location, static_cast<float>(width), static_cast<float>(height));
-
-		setupGBuffers(width, height);
-
-		glUseProgram(denoiser_program);
-
-		denoiser_delta_time_location = glGetUniformLocation(denoiser_program, "u_delta_time");
-
-		glGenTextures(1, &denoised_texture);
-		glBindTexture(GL_TEXTURE_2D, denoised_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenFramebuffers(1, &denoiser_framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, denoiser_framebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, denoised_texture, 0);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-		status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE) {
-			std::cerr << "Failed to create framebuffer: " << status;
-			exit(EXIT_FAILURE);
-		}
-
-		glUseProgram(0);
-	}
-
-	void setScene(Mesh &other_scene) {
-		scene = other_scene;
-		glUseProgram(main_program);
-		setupTrianglesSSBO();
-		setupBVHSSBO();
-	}
-
-	void generateChunks(unsigned int seed = 0) {
-		Perfomance chunks_perf_monitor;
-
-		chunks_perf_monitor.start();
-		for (int x = 0; x < world.generation_distance; x++) {
-			Perfomance chunk_perf_monitor;
-			chunk_perf_monitor.start();
-
-			for (int z = 0; z < world.generation_distance; z++) {
-				Chunk generated_chunk;
-				generated_chunk.generate(seed, x * 16, z * 16);
-				world.chunks.push_back(generated_chunk);
-			}
-
-			chunk_perf_monitor.stop();
-			std::cout << "Chunk[" << x << "][all] generated. " << chunk_perf_monitor << std::endl;
-		}
-		chunks_perf_monitor.stop();
-
-		std::cout << "Chunks generated. " << chunks_perf_monitor << std::endl;
-
-		setupChunksSSBO();
+		setupSTBN();
+		camera.init(glm::vec3(0.0f), 60.0f, 10.0f, 3);
 	}
 
 	void run() {
-		glBindVertexArray(VAO);
-
+		processEvents();
 		while (!glfwWindowShouldClose(window)) {
-			time = (float)glfwGetTime();
-			camera.buildFromRotations();
+			newFrame();
 
-			int width, height;
-			glfwGetFramebufferSize(window, &width, &height);
-			glViewport(0, 0, width, height);
-			glClear(GL_COLOR_BUFFER_BIT);
-			glClear(GL_STENCIL_BUFFER_BIT);
+			main_program.use();
+			screen_quad.draw();
+			main_program.unuse();
 
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_camera);
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), &camera);
+			denoising_program.use();
+			screen_quad.draw();
+			denoising_program.unuse();
 
-			glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_old_camera);
-			glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Camera), &old_camera);
+			postprocess_program.use();
+			screen_quad.draw();
+			postprocess_program.unuse();
 
-			if (sky.type != SKY_TYPE_HDRI) {
-				glUseProgram(hdri_program);
+			output_program.use();
+			screen_quad.draw();
+			output_program.unuse();
 
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, hdri_texture);
-				glUniform1i(glGetUniformLocation(hdri_program, "previous_hdri_texture"), 0);
-
-				glBindFramebuffer(GL_FRAMEBUFFER, hdri_framebuffer);
-
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			}
-
-			glUseProgram(main_program);
-
-			glUniform1ui(frame_location, frame);
-			glUniform1ui(samples_location, samples);
-			if(samples > 64) glUniform1ui(frame_seed_location, rand());
-			glUniform1f(time_location, time);
-			glUniform1f(delta_time_location, delta_time);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, diffuse_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_diffuse_texture"), 0);
-
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, albedo_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_albedo_texture"), 1);
-
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, normal_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_normal_texture"), 2);
-
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, position_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_position_texture"), 3);
-
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, restir_texture);
-			glUniform1i(glGetUniformLocation(main_program, "previous_restir_texture"), 4);
-
-			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_2D, hdri_texture);
-			glUniform1i(glGetUniformLocation(main_program, "hdri_texture"), 5);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, pathtracing_framebuffer);
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-			glUseProgram(denoiser_program);
-
-			glUniform1f(denoiser_delta_time_location, delta_time);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, diffuse_texture);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glUniform1i(glGetUniformLocation(denoiser_program, "diffuse_texture"), 0);
-
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, albedo_texture);
-			glGenerateMipmap(GL_TEXTURE_2D);
-			glUniform1i(glGetUniformLocation(denoiser_program, "albedo_texture"), 1);
-
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, normal_texture);
-			glUniform1i(glGetUniformLocation(denoiser_program, "normal_texture"), 2);
-
-			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, position_texture);
-			glUniform1i(glGetUniformLocation(denoiser_program, "position_texture"), 3);
-
-			glActiveTexture(GL_TEXTURE4);
-			glBindTexture(GL_TEXTURE_2D, velocity_texture);
-			glUniform1i(glGetUniformLocation(denoiser_program, "velocity_texture"), 4);
-
-			glActiveTexture(GL_TEXTURE5);
-			glBindTexture(GL_TEXTURE_2D, denoised_texture);
-			glUniform1i(glGetUniformLocation(denoiser_program, "previous_denoised_texture"), 5);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, denoiser_framebuffer);
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-			glUseProgram(postprocess_program);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, denoised_texture);
-			glUniform1i(glGetUniformLocation(postprocess_program, "rendered_frame"), 0);
-
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, albedo_texture);
-			glUniform1i(glGetUniformLocation(postprocess_program, "albedo_texture"), 1);
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-
-			glUseProgram(0);
+			renderGUI();
 
 			glfwSwapBuffers(window);
-
-			delta_time = (float)glfwGetTime() - time;
-			old_camera = camera;
-
-			glfwPollEvents();
-			processCameraMovement();
-
-			if (is_rendering) samples++;
-			frame++;
+			processEvents();
 		}
-	}
+	};
 
 	~Engine() {
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 
 		glfwDestroyWindow(window);
 		glfwTerminate();
-
-		std::cerr << "position: " << camera.lookfrom << " pitch: " << camera.pitch << " yaw: " << camera.yaw << std::endl;
-
-		std::cerr << "Engine process ended successfully!";
-	}
+	};
 
 private:
 
-	void setupCameraSSBO() {
-		glGenBuffers(1, &ssbo_camera);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_camera);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Camera), &camera, GL_STATIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo_camera);
-	}
-	
-	void setupOldCameraSSBO() {
-		glGenBuffers(1, &ssbo_old_camera);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_old_camera);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Camera), &old_camera, GL_STATIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, ssbo_old_camera);
-	}
+	void renderGUI() {
+		ImGuiWindowFlags window_flags_info = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize;
+		ImGuiWindowFlags window_flags_log = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+		ImGuiWindowFlags window_flags_scene = ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
-	void setupSkySSBO() {
-		glGenBuffers(1, &ssbo_sky);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_sky);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Sky), &sky, GL_STATIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, ssbo_sky);
-	}
-	
-	void setupChunksSSBO() {
-		glGenBuffers(1, &ssbo_chunks);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_chunks);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Chunk) * world.chunks.size(), world.chunks.data(), GL_STATIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, ssbo_chunks);
-	}
-
-	void setupTrianglesSSBO() {
-		glGenBuffers(1, &ssbo_triangles);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_triangles);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Triangle) * scene.triangles.size(), scene.triangles.data(), GL_STATIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, ssbo_triangles);
-	}
-	
-	void setupBVHSSBO() {
-		glGenBuffers(1, &ssbo_bvh_nodes);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_bvh_nodes);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(BVH_Node) * scene.bvh_nodes.size(), scene.bvh_nodes.data(), GL_STATIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, ssbo_bvh_nodes);
-	}
-
-	void setupVoxelTextures() {
-		glGenTextures(1, &voxel_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_texture_array);
-
-		std::string filepath = "C:/Users/Admin/source/repos/Speno/Texture/Voxel/";
-		std::vector<std::string> filenames;
-		filenames.push_back("stone");
-		filenames.push_back("grass_top");
-		filenames.push_back("grass_side");
-		filenames.push_back("dirt");
-		filenames.push_back("hardened_clay");
-		filenames.push_back("hardened_clay_stained_red");
-		filenames.push_back("red_sandstone_top");
-		filenames.push_back("red_sandstone_normal");
-		filenames.push_back("red_sandstone_bottom");
-
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, 16, 16, filenames.size());
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < filenames.size(); i++) {
-			std::string filename = filepath + filenames[i] + ".png";
-			int width, height, num_channels;
-			unsigned char* texture = stbi_load(filename.c_str(), &width, &height, &num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, texture);
-
-			if (!texture) {
-				printf("Failed to load texture: %s\n", filename.c_str());
-				exit(EXIT_FAILURE);
+		if (ImGui::BeginMainMenuBar()) {
+			if (ImGui::MenuItem("Exit")) {
+				glfwSetWindowShouldClose(window, true);
 			}
 
-			stbi_image_free(texture);
-		}
+			if (ImGui::BeginMenu("Window")) {
+				if (ImGui::MenuItem("Info")) {
+					is_info_window_open = true;
+				}
 
-		glActiveTexture(GL_TEXTURE14);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, voxel_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "voxel_textures"), 14);
-		glActiveTexture(GL_TEXTURE0);
-	}
+				if (ImGui::MenuItem("Settings")) {
+					is_settings_window_open = true;
+				}
 
-	void setupScalarSTBN() {
-		glGenTextures(1, &stbn_scalar_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_scalar_texture_array);
+				if (ImGui::MenuItem("Scene")) {
+					is_scene_window_open = true;
+				}
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R8, 128, 128, 64);
+				if (ImGui::MenuItem("Log")) {
+					is_log_window_open = true;
+				}
 
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_scalar_2Dx1Dx1D_128x128x64x1_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			unsigned char* stbn_texture = stbi_load(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 1);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RED, GL_UNSIGNED_BYTE, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
+				ImGui::EndMenu();
 			}
 
-			stbi_image_free(stbn_texture);
-		}
-	}
+			if (ImGui::BeginMenu("Display")) {
+				if (ImGui::MenuItem("Save Screenshot", "Print Screen")) {
+					saveScreenshot();
+				}
 
-	void setupVec1STBN() {
-		glGenTextures(1, &stbn_vec1_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec1_texture_array);
+				if (ImGui::MenuItem("Full Screen", "F11")) {
+					toggleFullscreen();
+				}
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R16, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_vec1_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
+				ImGui::EndMenu();
 			}
 
-			stbi_image_free(stbn_texture);
+			ImGui::EndMainMenuBar();
 		}
-	}
 
-	void setupVec2STBN() {
-		glGenTextures(1, &stbn_vec2_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec2_texture_array);
+		if (is_info_window_open) {
+			glm::vec3 lookfrom = camera.getCameraPosition();
 
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RG16, 128, 128, 64);
+			ImGui::Begin("Info", &is_info_window_open, window_flags_info);
 
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			ImGui::Text("FPS: %.1f", 1.0f / shared_engine_data.delta_time);
+			ImGui::Text("Camera position: %.1f, %.1f, %.1f", lookfrom.x, lookfrom.y, lookfrom.z);
+			ImGui::Text("Camera pitch: %.1f", camera.pitch);
+			ImGui::Text("Camera yaw: %.1f", camera.yaw);
+			ImGui::Text("Camera speed: %.1f", camera.speed);
 
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_vec2_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
-			}
-
-			stbi_image_free(stbn_texture);
+			ImGui::End();
 		}
-	}
 
-	void setupVec3STBN() {
-		glGenTextures(1, &stbn_vec3_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec3_texture_array);
-
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGB16, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_vec3_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
-			}
-
-			stbi_image_free(stbn_texture);
-		}
-	}
-
-	void setupUnitvec1STBN() {
-		glGenTextures(1, &stbn_unitvec1_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec1_texture_array);
-
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_R8, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec1_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			unsigned char* stbn_texture = stbi_load(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_BYTE, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
-			}
-
-			stbi_image_free(stbn_texture);
-		}
-	}
-
-	void setupUnitvec2STBN() {
-		glGenTextures(1, &stbn_unitvec2_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec2_texture_array);
-
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RG16, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec2_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
-			}
-
-			stbi_image_free(stbn_texture);
-		}
-	}
-
-	void setupUnitvec3STBN() {
-		glGenTextures(1, &stbn_unitvec3_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_texture_array);
-
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGB16, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec3_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
-
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-
-			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
-				exit(EXIT_FAILURE);
-			}
-
-			stbi_image_free(stbn_texture);
-		}
-	}
-
-	void setupUnitvec3cosineSTBN() {
-		glGenTextures(1, &stbn_unitvec3_cosine_texture_array);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_cosine_texture_array);
-
-		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA16, 128, 128, 64);
-
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		for (int i = 0; i < 64; i++) {
-			std::string stbn_filename = "C:/Users/Admin/Downloads/STBN/stbn_unitvec3_cosine_2Dx1D_128x128x64_" + std::to_string(i) + ".png";
-			int stbn_width, stbn_height, stbn_num_channels;
-			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 4);
+		if (is_settings_window_open) {
+			ImGui::Begin("Settings", &is_settings_window_open, window_flags_info);
 			
-			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
-			
+			ImGui::Separator(); ImGui::Spacing();
+
+			ImGui::Text("General:");
+			ImGui::Checkbox("Vertical Sync", &is_vertical_sync_enabled);
+			ImGui::Checkbox("Two Sided Geometry", &shared_engine_data.use_two_sided_geometry);
+			if (!shared_engine_data.use_pathtracing) {
+				ImGui::Checkbox("Shadows", &shared_engine_data.use_shadows);
+				ImGui::Checkbox("WIP PTAO", &shared_engine_data.use_pathtracing_ambient_occlusion);
+			}
+			ImGui::Checkbox("Path Tracing", &shared_engine_data.use_pathtracing);
+			if (shared_engine_data.use_pathtracing || shared_engine_data.use_pathtracing_ambient_occlusion) {
+				ImGui::Checkbox("WIP Temporal Reprojection", &shared_engine_data.use_temporal_reprojection);
+				
+				if (shared_engine_data.use_temporal_reprojection) {
+					ImGui::Checkbox("Do not reproject if the camera is moving.", &shared_engine_data.do_not_reproject_movement);
+					if (ImGui::IsItemHovered()) {
+						ImGui::BeginTooltip();
+						ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.3f), 
+							"Because temporal reprojection is still in development,"
+							"I have not yet managed to somehow fix the fact that the picture gets worse when the camera moves.");
+						ImGui::EndTooltip();
+					}
+				}
+			}
+
+			ImGui::Spacing(); ImGui::Separator(); ImGui::Spacing();
+
+			ImGui::Text("Camera:");
+			ImGui::SliderFloat("Speed", &camera.speed, 1.0f, 100.0f, "%.1f", 0);
+			ImGui::SliderFloat("Fov", &camera.fov, 10.0f, 140.0f, "%.f", 0);
+			if (shared_engine_data.use_pathtracing) ImGui::SliderInt("Max Depth", &camera.max_depth, 3, 16, "%d", 0);
+
+			ImGui::Spacing(); ImGui::Separator();
+
+			ImGui::End();
+		}
+
+		if (is_scene_window_open) {
+			float menu_bar_height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2.0f;
+
+			float size = (float)window_width / 4.0f;
+			ImVec2 window_pos = ImVec2((float)window_width - size, menu_bar_height);
+			ImVec2 window_size = ImVec2(size, (float)window_height - menu_bar_height);
+
+			ImGui::SetNextWindowPos(window_pos);
+			ImGui::SetNextWindowSize(window_size);
+
+			ImGui::Begin("Scene", &is_scene_window_open, window_flags_scene);
+
+			if (ImGui::Button("Load HDRI")) {
+				wchar_t filePath[MAX_PATH] = { 0 };
+				HWND hwnd = glfwGetWin32Window(window);
+				if (OpenHDRiFileDialog(hwnd, filePath, MAX_PATH)) {
+					char utf8FilePath[MAX_PATH];
+					WideCharToMultiByte(CP_UTF8, 0, filePath, -1, utf8FilePath, MAX_PATH, NULL, NULL);
+					std::string filePathStr(utf8FilePath);
+					main_program.hdriLoadFromFile(18, filePathStr, "hdri_texture", 19, "hdri_data_texture");
+					shared_engine_data.use_hdri = true;
+					glfwRestoreWindow(window);
+				}
+				glfwRestoreWindow(window);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Load Mesh")) {
+				wchar_t filePath[MAX_PATH] = { 0 };
+				HWND hwnd = glfwGetWin32Window(window);
+				if (OpenMeshFileDialog(hwnd, filePath, MAX_PATH)) {
+					char utf8FilePath[MAX_PATH];
+					WideCharToMultiByte(CP_UTF8, 0, filePath, -1, utf8FilePath, MAX_PATH, NULL, NULL);
+					std::string filePathStr(utf8FilePath);
+					should_update_mesh = true;
+					glfwRestoreWindow(window);
+					mesh_path = filePathStr;
+				}
+				glfwRestoreWindow(window);
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Load Mesh Texture")) {
+				wchar_t filePath[MAX_PATH] = { 0 };
+				HWND hwnd = glfwGetWin32Window(window);
+				if (OpenImageFileDialog(hwnd, filePath, MAX_PATH)) {
+					char utf8FilePath[MAX_PATH];
+					WideCharToMultiByte(CP_UTF8, 0, filePath, -1, utf8FilePath, MAX_PATH, NULL, NULL);
+					std::string filePathStr(utf8FilePath);
+					main_program.textureLoadFromFile(17, filePathStr, "mesh_texture", GL_LINEAR, GL_REPEAT);
+					shared_engine_data.mesh_color_method = 0;
+					glfwRestoreWindow(window);
+				}
+				glfwRestoreWindow(window);
+			}
+
+			static const char* mesh_color_methods[] = { "Texture", "Single color", "Automatic landscape color", "Atrribute color" };
+			ImGui::Combo("Color Method", &shared_engine_data.mesh_color_method, mesh_color_methods, IM_ARRAYSIZE(mesh_color_methods));
+			if (shared_engine_data.mesh_color_method == 0 && !is_mesh_texture_loaded) {
+				shared_engine_data.mesh_color_method = 1;
+				is_log_window_open = true;
+				console_buffer += "Failed to load texture. Please load the mesh texture first.\n";
+			}
+			else if (shared_engine_data.mesh_color_method == 1) {
+				ImGui::ColorEdit3("Color", &shared_engine_data.mesh_color.x);
+			}
+
+			ImGui::End();
+		}
+
+		if (is_log_window_open) {
+			float size = (float)window_height / 4.0f;
+			float log_window_width = (float)window_width;
+			if(is_scene_window_open) log_window_width -= (float)window_width / 4.0f;
+
+			ImGui::SetNextWindowPos(ImVec2(0, (float)window_height - size));
+			ImGui::SetNextWindowSize(ImVec2(log_window_width, size));
+
+			ImGui::Begin("Log", &is_log_window_open, window_flags_log);
+			ImGui::Text(console_buffer.c_str());
+			ImGui::End();
+		}
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	}
+
+	inline void setupSTBN() {
+		stbn_width = 128;
+		stbn_height = 128;
+		stbn_depth = 128;
+
+		main_program.setUniform3i("stbn_resolution", glm::ivec3(stbn_width, stbn_height, stbn_depth));
+
+		loadSTBN(8, "stbn_scalar", "STBN/scalar/stbn_scalar_2Dx1Dx1D_128x128x128x1", stbn_scalar_texture_array);
+        loadSTBN(9, "stbn_vec1", "STBN/vec1/stbn_vec1_2Dx1D_128x128x128", stbn_vec1_texture_array);
+		loadSTBN(10, "stbn_unitvec1", "STBN/vec1/unit/stbn_unitvec1_2Dx1D_128x128x128", stbn_unitvec1_texture_array);
+		loadSTBN(11, "stbn_vec2", "STBN/vec2/stbn_vec2_2Dx1D_128x128x128", stbn_vec2_texture_array);
+		loadSTBN(12, "stbn_unitvec2", "STBN/vec2/unit/stbn_unitvec2_2Dx1D_128x128x128", stbn_unitvec2_texture_array);
+		loadSTBN(13, "stbn_vec3", "STBN/vec3/stbn_vec3_2Dx1D_128x128x128", stbn_vec3_texture_array);
+		loadSTBN(14, "stbn_unitvec3", "STBN/vec3/unit/stbn_unitvec3_2Dx1D_128x128x128", stbn_unitvec3_texture_array);
+		loadSTBN(15, "stbn_unitvec3_cosine", "STBN/vec3/unit/cosine/stbn_unitvec3_cosine_2Dx1D_128x128x128", stbn_unitvec3_cosine_texture_array);
+		loadSTBN(16, "stbn_unitvec3_hdri", "STBN/vec3/unit/hdri/starmap/stbn_unitvec3_starmap_2Dx1D_128x128x128", stbn_unitvec3_hdri_texture_array);
+	}
+
+	void loadSTBN(GLuint texture_unit, std::string uniform_name, std::string filepath, GLuint &stbn_texture_array) {
+		glGenTextures(1, &stbn_texture_array);
+		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_texture_array);
+
+		glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA16F, stbn_width, stbn_height, stbn_depth);
+
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		for (int i = 0; i < stbn_depth; i++) {
+			std::string stbn_filename = filepath + "_" + std::to_string(i) + ".png";
+			int stbn_width, stbn_height, stbn_num_channels;
+			stbi_us* stbn_texture = stbi_load_16(stbn_filename.c_str(), &stbn_width, &stbn_height, &stbn_num_channels, 0);
+
 			if (!stbn_texture) {
-				printf("Failed to load texture: %s\n", stbn_filename.c_str());
+				printf("Failed to load stbn texture: %s\n", stbn_filename.c_str());
+				exit(EXIT_FAILURE);
+			}
+
+			if (stbn_num_channels == 1) {
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RED, GL_UNSIGNED_SHORT, stbn_texture);
+			}
+			else if (stbn_num_channels == 4) {
+				glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, stbn_width, stbn_height, 1, GL_RGBA, GL_UNSIGNED_SHORT, stbn_texture);
+			}
+			else {
+				printf("Unexpected number of channels in stbn texture: %s\n", stbn_filename.c_str());
 				exit(EXIT_FAILURE);
 			}
 
 			stbi_image_free(stbn_texture);
 		}
+
+		main_program.bindTexture(texture_unit, stbn_texture_array, uniform_name, GL_TEXTURE_2D_ARRAY);
 	}
 
-	void activateAllSTBNTextures() {
-		glActiveTexture(GL_TEXTURE6);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_scalar_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_scalar_texture"), 6);
-
-		glActiveTexture(GL_TEXTURE7);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec1_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_vec1_texture"), 7);
-
-		glActiveTexture(GL_TEXTURE8);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec2_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_vec2_texture"), 8);
-
-		glActiveTexture(GL_TEXTURE9);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_vec3_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_vec3_texture"), 9);
-
-		glActiveTexture(GL_TEXTURE10);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec1_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec1_texture"), 10);
-
-		glActiveTexture(GL_TEXTURE11);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec2_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec2_texture"), 11);
-
-		glActiveTexture(GL_TEXTURE12);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec3_texture"), 12);
-
-		glActiveTexture(GL_TEXTURE13);
-		glBindTexture(GL_TEXTURE_2D_ARRAY, stbn_unitvec3_cosine_texture_array);
-		glUniform1i(glGetUniformLocation(main_program, "stbn_unitvec3_cosine_texture"), 13);
-
-		glActiveTexture(GL_TEXTURE0);
-	}
-
-	void setupGBuffers(int width, int height) {
-		glGenTextures(1, &diffuse_texture);
-		glBindTexture(GL_TEXTURE_2D, diffuse_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenTextures(1, &albedo_texture);
-		glBindTexture(GL_TEXTURE_2D, albedo_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenTextures(1, &normal_texture);
-		glBindTexture(GL_TEXTURE_2D, normal_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenTextures(1, &position_texture);
-		glBindTexture(GL_TEXTURE_2D, position_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenTextures(1, &velocity_texture);
-		glBindTexture(GL_TEXTURE_2D, velocity_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenTextures(1, &restir_texture);
-		glBindTexture(GL_TEXTURE_2D, restir_texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glGenFramebuffers(1, &pathtracing_framebuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, pathtracing_framebuffer);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, diffuse_texture,  0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, albedo_texture,   0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, normal_texture,   0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, position_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, velocity_texture, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, restir_texture,    0);
-
-		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE) {
-			std::cerr << "Failed to create framebuffer: " << status;
-			exit(EXIT_FAILURE);
+	void processEvents() {
+		if (should_update_mesh) {
+			scene.loadFromFile(mesh_path);
+			should_update_mesh = false;
 		}
 
-		const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
-		glDrawBuffers(6, draw_buffers);
+		float new_time = (float)glfwGetTime();
+		shared_engine_data.delta_time = new_time - shared_engine_data.time;
+		shared_engine_data.time = new_time;
+		shared_engine_data.frame++;
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glfwPollEvents();
+		cameraEvent();
+
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(SharedEngineData), &shared_engine_data);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		main_program.setUniform2f("resolution", glm::vec2(window_width, window_height));
+		denoising_program.setUniform1b("use_pathtracing_ambient_occlusion", shared_engine_data.use_pathtracing_ambient_occlusion);
+		denoising_program.setUniform1b("use_pathtracing", shared_engine_data.use_pathtracing);
+
+		glfwSwapInterval((int)is_vertical_sync_enabled);
 	}
 
-	void setupScreenQuad() {
-		float vertices[] =
-		{
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
-			-1.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, -1.0f, 1.0f, 0.0f,
-			1.0f, 1.0f, 1.0f, 1.0f
-		};
+	void cameraEvent() {
+		camera.beforeMovement();
 
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glBindVertexArray(VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-		glBindVertexArray(0);
-	}
+		float speed = shared_engine_data.delta_time;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) speed *= 3.146f;
+		if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) speed *= 0.318f;
 
-	static void errorCallback(int error, const char* description) {
-		fprintf(stderr, "GLFW Error: %s\n", description);
-		exit(EXIT_FAILURE);
-	}
-
-	static void keyCallbackStatic(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-		if (engine != nullptr) {
-			engine->keyCallback(window, key, scancode, action, mods);
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			camera.stepForward(speed);
 		}
-	}
-	
-	static void windowFocusCallbackStatic(GLFWwindow* window, int focused) {
-		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
-		if (engine != nullptr) {
-			engine->windowFocusCallback(window, focused);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+			camera.stepLeft(speed);
 		}
-	}
-
-	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-		if (action == GLFW_PRESS) {
-			if (key == GLFW_KEY_R) {
-				if (is_rendering) {
-					is_rendering = false;
-					samples = 1;
-				}
-				else {
-					is_rendering = true;
-				}
-			}
-			else if (key == GLFW_KEY_ESCAPE) {
-				glfwSetWindowShouldClose(window, GLFW_TRUE);
-			}
-			else if (key == GLFW_KEY_PRINT_SCREEN) {
-				int width, height;
-				glfwGetFramebufferSize(window, &width, &height);
-
-				unsigned char* pixels = new unsigned char[width * height * 3];
-				glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
-				std::time_t now = std::time(nullptr);
-				char timestamp[20];
-				std::strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", std::localtime(&now));
-				std::string filename = "C:/GAMES/screenshot_" + std::string(timestamp) + ".png";
-
-				stbi_flip_vertically_on_write(1);
-				if (stbi_write_png(filename.c_str(), width, height, 3, pixels, 0)) {
-					std::clog << "Successfully saved screenshot to: " << filename << std::endl;
-				}
-				else {
-					std::clog << "Failed to save screenshot to: " << filename << std::endl;
-				}
-
-				delete[] pixels;
-			}
-			else if (key == GLFW_KEY_F11 && !is_rendering) {
-				const GLFWvidmode* video_mode = glfwGetVideoMode(primary_monitor);
-
-				if (glfwGetWindowMonitor(window) != nullptr) {
-					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-					glfwSetWindowMonitor(window, nullptr, 0, 0, video_mode->width / 4, video_mode->height / 4, GLFW_DONT_CARE);
-					glfwSetWindowPos(window, 3 * video_mode->width / 8, 3 * video_mode->height / 8);
-					glfwSetWindowSize(window, video_mode->width / 4, video_mode->height / 4);
-				}
-				else {
-					glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-					glfwSetWindowMonitor(window, primary_monitor, 0, 0, video_mode->width, video_mode->height, GLFW_DONT_CARE);
-				}
-			}
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			camera.stepRight(speed);
 		}
-	}
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+			camera.stepBack(speed);
+		}
+		if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+			camera.stepDown(speed);
+		}
+		if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+			camera.stepUp(speed);
+		}
 
-	void processCameraMovement() {
-		if (!is_rendering) {
-			float speed = delta_time;
-			if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_RELEASE) speed *= 3.146f;
-			else if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_RELEASE) speed *= 0.318f;
-
-			if (glfwGetKey(window, GLFW_KEY_W) != GLFW_RELEASE) {
-				camera.stepForward(speed);
-			}
-			if (glfwGetKey(window, GLFW_KEY_A) != GLFW_RELEASE) {
-				camera.stepLeft(speed);
-			}
-			if (glfwGetKey(window, GLFW_KEY_D) != GLFW_RELEASE) {
-				camera.stepRight(speed);
-			}
-			if (glfwGetKey(window, GLFW_KEY_S) != GLFW_RELEASE) {
-				camera.stepBack(speed);
-			}
-			if (glfwGetKey(window, GLFW_KEY_Q) != GLFW_RELEASE) {
-				camera.stepDown(speed);
-			}
-			if (glfwGetKey(window, GLFW_KEY_E) != GLFW_RELEASE) {
-				camera.stepUp(speed);
-			}
-
-			if (glfwGetInputMode(window, GLFW_CURSOR) != GLFW_CURSOR_NORMAL) {
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
+			if (is_camera_move_enabled) {
 				double mouse_xpos, mouse_ypos;
 				glfwGetCursorPos(window, &mouse_xpos, &mouse_ypos);
 
-				int width, height;
-				glfwGetFramebufferSize(window, &width, &height);
+				int centerX = window_width / 2;
+				int centerY = window_height / 2;
 
-				int centerX = width / 2;
-				int centerY = height / 2;
-
-				float x_velocity = (centerX - (float)mouse_xpos) / width  * 90.0f;
-				float y_velocity = (centerY - (float)mouse_ypos) / height * 90.0f;
+				float x_velocity = (centerX - (float)mouse_xpos) / window_width * 90.0f;
+				float y_velocity = (centerY - (float)mouse_ypos) / window_height * 90.0f;
 
 				camera.pitch += y_velocity;
 				camera.pitch = std::clamp(camera.pitch, -90.0f, 90.0f);
@@ -899,162 +443,290 @@ private:
 
 				glfwSetCursorPos(window, centerX, centerY);
 			}
+			else {
+				int centerX = window_width / 2;
+				int centerY = window_height / 2;
 
-			if (sky.type == SKY_TYPE_REALISTIC) {
-				bool pass_new_value = false;
+				glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				glfwSetCursorPos(window, centerX, centerY);
+				is_camera_move_enabled = true;
+			}
+		}
+		else {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			is_camera_move_enabled = false;
+		}
 
-				if (glfwGetKey(window, GLFW_KEY_UP) != GLFW_RELEASE) {
-					sky = Sky(sky.pitch + speed, sky.yaw);
-					pass_new_value = true;
-				}
-				if (glfwGetKey(window, GLFW_KEY_DOWN) != GLFW_RELEASE) {
-					sky = Sky(sky.pitch - speed, sky.yaw);
-					pass_new_value = true;
-				}
-				if (glfwGetKey(window, GLFW_KEY_LEFT) != GLFW_RELEASE) {
-					sky = Sky(sky.pitch, sky.yaw - speed);
-					pass_new_value = true;
-				}
-				if (glfwGetKey(window, GLFW_KEY_RIGHT) != GLFW_RELEASE) {
-					sky = Sky(sky.pitch, sky.yaw + speed);
-					pass_new_value = true;
+		camera.update();
+	}
+
+	inline void initWindow(bool fullscreen) {
+		std::string title = "Speno " + std::to_string(SPENO_VERSION_MAJOR) + "." + std::to_string(SPENO_VERSION_MINOR) + "." + std::to_string(SPENO_VERSION_PATCH) + "." + std::to_string(SPENO_VERSION_TWEAK);
+		
+		if (fullscreen) {
+			GLFWmonitor* primary_monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* video_mode = glfwGetVideoMode(primary_monitor);
+
+			window_width = video_mode->width;
+			window_height = video_mode->height;
+
+			last_window_width = window_width;
+			last_window_height = window_height;
+
+			window = glfwCreateWindow(window_width, window_height, title.c_str(), primary_monitor, NULL);
+		}
+		else {
+			window_width = 640;
+			window_height = 480;
+
+			last_window_width = window_width;
+			last_window_height = window_height;
+
+			window = glfwCreateWindow(window_width, window_height, title.c_str(), nullptr, NULL);
+		}
+
+		if (!window) {
+			glfwTerminate();
+
+			std::cout << "Failed to create window or OpenGL context.";
+			exit(EXIT_FAILURE);
+		}
+
+		int width, height, channels;
+		unsigned char *data = stbi_load("Texture/Icon/icon_48x48.png", &width, &height, &channels, 0);
+		if (!data) {
+			std::cout << "Failed to load icon.";
+			exit(EXIT_FAILURE);
+		}
+
+		GLFWimage icon;
+		icon.width = width;
+		icon.height = height;
+		icon.pixels = data;
+
+		glfwSetWindowIcon(window, 1, &icon);
+		glfwMakeContextCurrent(window);
+		glfwSetWindowUserPointer(window, this);
+		glfwSwapInterval((int)is_vertical_sync_enabled);
+		glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+		glfwSetKeyCallback(window, keyCallback);
+	}
+
+	inline void initImGui() {
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		ImGui::StyleColorsDark();
+
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 460 core");
+	}
+
+	inline void initOpenGL() {
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+			std::cout << "Failed to initialize GLAD.";
+			exit(EXIT_FAILURE);
+		}
+	}
+
+	inline void initGLFW() {
+		if (!glfwInit()) {
+			std::cout << "Failed to initialize GLFW.";
+			exit(EXIT_FAILURE);
+		}
+
+		glfwSetErrorCallback(errorCallback);
+	}
+
+	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
+		if (engine != nullptr) {
+			if (action == GLFW_PRESS) {
+				if (key == GLFW_KEY_ESCAPE) {
+					glfwSetWindowShouldClose(window, true);
 				}
 
-				if (pass_new_value) {
-					glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo_sky);
-					glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Sky), &sky);
+				else if (key == GLFW_KEY_F11) {
+					engine->toggleFullscreen();
+				}
+
+				if (key == GLFW_KEY_PRINT_SCREEN) {
+					engine->saveScreenshot();
 				}
 			}
 		}
 	}
 
-	void windowFocusCallback(GLFWwindow* window, int focused) {
-		if (focused) {
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	bool OpenHDRiFileDialog(HWND hwndOwner, wchar_t* buffer, DWORD bufferSize) {
+		OPENFILENAMEW ofn;
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = hwndOwner;
+		ofn.lpstrFile = buffer;
+		ofn.lpstrFile[0] = L'\0';
+		ofn.nMaxFile = bufferSize;
+		ofn.lpstrFilter = L"HDR Files\0*.hdr\0All Files\0*.*\0";
+		ofn.nFilterIndex = 1;
+		ofn.lpstrDefExt = L"hdr";
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		ofn.lpstrInitialDir = L"./Texture/Hdri";
+
+		if (!GetOpenFileNameW(&ofn)) {
+			std::string err = std::to_string(CommDlgExtendedError());
+			if(err != "0") console_buffer += "Failed to open file dialog. " + err + "\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	bool OpenMeshFileDialog(HWND hwndOwner, wchar_t* buffer, DWORD bufferSize) {
+		OPENFILENAMEW ofn;
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = hwndOwner;
+		ofn.lpstrFile = buffer;
+		ofn.lpstrFile[0] = L'\0';
+		ofn.nMaxFile = bufferSize;
+		ofn.lpstrFilter = L"OBJ Files\0*.obj\0All Files\0*.*\0";
+		ofn.nFilterIndex = 1;
+		ofn.lpstrDefExt = L"obj";
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		ofn.lpstrInitialDir = L"./Meshes";
+
+		if (!GetOpenFileNameW(&ofn)) {
+			std::string err = std::to_string(CommDlgExtendedError());
+			if (err != "0") console_buffer += "Failed to open file dialog. " + err + "\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	bool OpenImageFileDialog(HWND hwndOwner, wchar_t* buffer, DWORD bufferSize) {
+		OPENFILENAMEW ofn;
+		ZeroMemory(&ofn, sizeof(ofn));
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = hwndOwner;
+		ofn.lpstrFile = buffer;
+		ofn.lpstrFile[0] = L'\0';
+		ofn.nMaxFile = bufferSize;
+		ofn.lpstrFilter = L"PNG Files\0*.png\0All Files\0*.*\0";
+		ofn.nFilterIndex = 1;
+		ofn.lpstrDefExt = L"png";
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+		ofn.lpstrInitialDir = L"./Texture";
+
+		if (!GetOpenFileNameW(&ofn)) {
+			std::string err = std::to_string(CommDlgExtendedError());
+			if (err != "0") console_buffer += "Failed to open file dialog. " + err + "\n";
+			return false;
+		}
+
+		return true;
+	}
+
+	void saveScreenshot() {
+		std::string output_folder = "Screenshots";
+
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+
+		unsigned char* pixels = new unsigned char[width * height * 3];
+
+		postprocess_program.use();
+		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		postprocess_program.unuse();
+
+		std::time_t now = std::time(nullptr);
+		char timestamp[20];
+		std::strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", std::localtime(&now));
+
+		std::string filename = output_folder + "/screenshot_" + std::string(timestamp) + ".png";
+
+		if (stbi_write_png(filename.c_str(), width, height, 3, pixels, 0)) {
+			console_buffer += "Successfully saved screenshot to: " + filename + "\n";
 		}
 		else {
-			glfwRequestWindowAttention(window);
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			console_buffer += "Failed to save screenshot to: " + filename + "\n";
+		}
+
+		delete[] pixels;
+	}
+
+	void toggleFullscreen() {
+		GLFWmonitor* monitor = glfwGetWindowMonitor(window);
+		if (monitor == nullptr) {
+			// Save the current window position and size to restore later
+			glfwGetWindowPos(window, &last_window_x, &last_window_y);
+			glfwGetWindowSize(window, &last_window_width, &last_window_height);
+
+			// Get the primary monitor and its video mode
+			monitor = glfwGetPrimaryMonitor();
+			const GLFWvidmode* video_mode = glfwGetVideoMode(monitor);
+
+			// Switch to fullscreen
+			glfwSetWindowMonitor(window, monitor, 0, 0, video_mode->width, video_mode->height, video_mode->refreshRate);
+		}
+		else {
+			// Restore to windowed mode using the last saved position and size
+			glfwSetWindowMonitor(window, nullptr, last_window_x, last_window_y, last_window_width, last_window_height, 0);
 		}
 	}
 
-	void setupShaderProgramms() {
-		std::string vertex_shader_source      = readShaderFile("vertex.glsl");
-		std::string hdri_shader_sourse        = readShaderFile("hdri.glsl");
-		std::string main_shader_source        = readShaderFile("main.glsl");
-		std::string denoiser_shader_source    = readShaderFile("denoiser.glsl");
-		std::string postprocess_shader_source = readShaderFile("postprocess.glsl");
-
-		std::regex include_pattern("#include \"([^\"]+)\"");
-		std::smatch include_matches;
-
-		while (std::regex_search(main_shader_source, include_matches, include_pattern)) {
-			std::string include_directive = include_matches[0];
-			std::string include_file_name = include_matches[1];
-
-			std::string include_source = readShaderFile(include_file_name);
-
-			main_shader_source.replace(include_matches.position(0), include_directive.length(), include_source + "\n");
+	static void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
+		if (width == 0 || height == 0) {
+			return;
 		}
 
-#ifdef DEBUG //TODO: добавить возможность просматривать сразу где именно была ошибка
-		std::istringstream f(main_shader_source);
-		std::string line;
-		int line_num = 0;
-		while (std::getline(f, line)) {
-			std::cout << ++line_num << ". " << line << std::endl;
-		}
-#endif
-
-		hdri_program        = createShaderProgram(vertex_shader_source, hdri_shader_sourse);
-		main_program        = createShaderProgram(vertex_shader_source, main_shader_source);
-		denoiser_program    = createShaderProgram(vertex_shader_source, denoiser_shader_source);
-		postprocess_program = createShaderProgram(vertex_shader_source, postprocess_shader_source);
-	}
-
-	GLuint createShaderProgram(const std::string& vertex_shader_source, const std::string& fragment_shader_source) {
-		GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-		compileShader(vertex_shader, vertex_shader_source);
-
-		GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-		compileShader(fragment_shader, fragment_shader_source);
-
-		GLuint shader_program = glCreateProgram();
-		glAttachShader(shader_program, vertex_shader);
-		glAttachShader(shader_program, fragment_shader);
-		glLinkProgram(shader_program);
-
-		GLint success;
-		GLchar info_log[512];
-		glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-		if (!success) {
-			std::cerr << "Shader program linking failed: " << info_log;
-			exit(EXIT_FAILURE);
-		}
-
-		glDeleteShader(vertex_shader);
-		glDeleteShader(fragment_shader);
-
-		return shader_program;
-	}
-
-	void compileShader(GLuint shader, const std::string& shader_source) {
-		const GLchar* shader_source_ptr = shader_source.c_str();
-		glShaderSource(shader, 1, &shader_source_ptr, nullptr);
-		glCompileShader(shader);
-
-		GLint success;
-		GLchar info_log[512];
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(shader, 512, nullptr, info_log);
-			std::cerr << "Shader compilation failed: " << std::string(info_log);
-			exit(EXIT_FAILURE);
+		Engine* engine = static_cast<Engine*>(glfwGetWindowUserPointer(window));
+		if (engine != nullptr) {
+			glViewport(0, 0, width, height);
+			engine->main_program.resize(width, height);
+			engine->denoising_program.resize(width, height);
+			engine->postprocess_program.resize(width, height);
+			engine->main_program.setUniform2f("resolution", glm::vec2(width, height));
+			engine->window_width = width;
+			engine->window_height = height;
+			engine->denoising_program.bindTexture(0, engine->main_program.fbo_texture, "gbufferDiffuse");
 		}
 	}
 
-	template<typename FilePath>
-	std::string readShaderFile(const FilePath& file_path) {
-		std::ifstream file_stream(file_path, std::ios::in);
-		if (!file_stream.is_open()) {
-			std::cerr << "Could not read file " << std::string(file_path) << ". File does not exist.";
-			exit(EXIT_FAILURE);
-		}
-
-		std::stringstream buffer;
-		buffer << file_stream.rdbuf();
-		file_stream.close();
-
-		return buffer.str();
+	static void errorCallback(int error, const char* description) {
+		fprintf(stderr, "GLFW Error: %s\n", description);
+		exit(EXIT_FAILURE);
 	}
 
-	unsigned int frame = 1;
-	unsigned int samples = 1;
-	float delta_time = 0.0;
-	float time = 0.0;
-	bool is_rendering = false;
+	inline void newFrame() {
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		glClear(GL_STENCIL_BUFFER_BIT);
 
-	Mesh scene;
-	BlockWorld world; 
-	Camera camera;
-	Camera old_camera;
-	Sky sky = Sky(45.0, 60.0);
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+	}
+
+private:
+
+	int window_width, window_height, window_x, window_y;
+	int last_window_width, last_window_height, last_window_x = 0, last_window_y = 0;
+
+	int stbn_width, stbn_height, stbn_depth;
 	
-	GLuint ssbo_camera;
-	GLuint ssbo_old_camera;
-	GLuint ssbo_sky;
-	GLuint ssbo_chunks;
-	GLuint ssbo_triangles;
-	GLuint ssbo_bvh_nodes;
+	bool should_update_mesh = false;
+	std::string mesh_path;
 
-	GLuint resolution_location;
-	GLuint frame_location;
-	GLuint samples_location;
-	GLuint frame_seed_location;
-	GLuint time_location;
-	GLuint delta_time_location;
-	GLuint denoiser_delta_time_location;
-
+	bool is_info_window_open = false;
+	bool is_settings_window_open = false;
+	bool is_scene_window_open = false;
+	bool is_log_window_open = false;
+	bool is_camera_move_enabled = false;
+	bool is_vertical_sync_enabled = false;
+	bool is_mesh_texture_loaded = false;
+	
+	GLuint ubo;
 	GLuint stbn_scalar_texture_array;
 	GLuint stbn_vec1_texture_array;
 	GLuint stbn_vec2_texture_array;
@@ -1063,31 +735,14 @@ private:
 	GLuint stbn_unitvec2_texture_array;
 	GLuint stbn_unitvec3_texture_array;
 	GLuint stbn_unitvec3_cosine_texture_array;
-
-	GLuint voxel_texture_array;
-
-	GLuint diffuse_texture,		   // RGB - pathtraced color; A - number of accumulated colors
-		albedo_texture,			   // RGB - albedo
-		normal_texture,			   // RGB - normal
-		position_texture,		   // RGB - world position;   A - Depth
-		velocity_texture,		   // RG  - velocity
-		restir_texture;		       // RGB - resrit information
-
-	GLuint hdri_texture;
-	GLuint denoised_texture;
-
-	GLuint hdri_framebuffer;
-	GLuint pathtracing_framebuffer;
-	GLuint denoiser_framebuffer;
-
-	GLuint VBO;
-	GLuint VAO;
-
-	GLuint hdri_program;
-	GLuint main_program;
-	GLuint denoiser_program;
-	GLuint postprocess_program;
+	GLuint stbn_unitvec3_hdri_texture_array;
 
 	GLFWwindow* window;
-	GLFWmonitor* primary_monitor;
+	Mesh scene;
+	Camera camera;
+	Quad screen_quad;
+	ShaderProgram main_program;
+	ShaderProgram denoising_program;
+	ShaderProgram postprocess_program;
+	ShaderProgram output_program;
 };
