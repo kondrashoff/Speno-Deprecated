@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Исходные файлы">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
     <Filter Include="Файлы заголовков">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
@@ -19,11 +15,18 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{1d5f7270-e6a7-46c4-9f82-1321ba81647a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\ImGui">
-      <UniqueIdentifier>{cf321739-4917-4c7d-8b77-2a2f1e9a35b1}</UniqueIdentifier>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Исходные файлы\glad">
       <UniqueIdentifier>{32171bfa-f4fe-4187-85b1-4afe01f4432d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGui">
+      <UniqueIdentifier>{cf321739-4917-4c7d-8b77-2a2f1e9a35b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\easy_encryption">
+      <UniqueIdentifier>{84255431-66fe-468e-b7c2-9133e7fac89d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -34,96 +37,205 @@
       <Filter>Исходные файлы\glad</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui_demo.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui_draw.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui_impl_glfw.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui_impl_opengl3.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui_tables.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="Include\ImGui\imgui_widgets.cpp">
-      <Filter>Файлы заголовков\ImGui</Filter>
+      <Filter>Исходные файлы\ImGui</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Shader\denoising_functions.glsl">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader\noise.glsl">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="EngineData.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="PerformanceMonitor.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Quad.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="FlagManager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Quad.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedEngineData.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgramManager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="AABB.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="UBOmanager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="SSBOmanager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="BVH.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Atmosphere.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\easy_encryption\Base64.cpp">
+      <Filter>Исходные файлы\easy_encryption</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Console.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Timing.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
     <None Include="packages.config" />
-    <None Include="Shader\main.glsl">
+    <None Include="Shader\shared_engine_data.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\random.glsl">
+    <None Include="Shader\loading_screen.frag">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\vertex.glsl">
+    <None Include="Shader\default.vert">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\postprocess.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shader\tonemap.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shader\output.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shader\intersections.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shader\structures.glsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="Shader\defines.glsl">
+    <None Include="Shader\default.frag">
       <Filter>Shader</Filter>
     </None>
     <None Include="Shader\stbn.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\functions.glsl">
+    <None Include="Shader\camera.glsl">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\pathtracing.glsl">
+    <None Include="Shader\postprocess.frag">
       <Filter>Shader</Filter>
     </None>
-    <None Include="Shader\denoiser.glsl">
+    <None Include="Shader\scene.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\hit.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\intersection_functions.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\defines.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\pathtracing_functions.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\color_functions.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\storage.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoising_util.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser2.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser3.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser4.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser5.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser6.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser7.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\denoiser8.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\atmosphere.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\atmosphere_data.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\bvh_heatmap_calculation.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\variance_estimation.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\random.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\noise.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\reprojection.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\wavelength.glsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\pathtracing.frag">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shader\test.glsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -134,5 +246,112 @@
     <CopyFileToFolders Include="Binary\glfw3.dll">
       <Filter>Binary</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_core.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_cpu.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_cuda.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_hip.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_sycl.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_sycl_xehpg.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_sycl_xelp.dll">
+      <Filter>Binary</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="version.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="FlagManager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Quad.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedEngineData.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Flags.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramManager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="AABB.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="UBOmanager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="SSBOmanager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="BVH.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Atmosphere.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Console.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Timing.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

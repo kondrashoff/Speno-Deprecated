@@ -6,6 +6,14 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="PublicRelease|Win32">
+      <Configuration>PublicRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="PublicRelease|x64">
+      <Configuration>PublicRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -40,6 +48,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PublicRelease|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -47,6 +62,13 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PublicRelease|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
@@ -64,10 +86,16 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PublicRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='PublicRelease|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -99,26 +127,44 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PublicRelease|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level1</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>./Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;OpenImageDenoise.lib;OpenImageDenoise_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level1</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
@@ -126,18 +172,54 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>./Include;./Include/ImGui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;OpenImageDenoise.lib;OpenImageDenoise_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='PublicRelease|x64'">
+    <ClCompile>
+      <WarningLevel>Level1</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;PUBLIC_RELEASE;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;glfw3dll.lib;OpenImageDenoise.lib;OpenImageDenoise_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp" />
+    <ClCompile Include="Atmosphere.cpp" />
+    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="BVH.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Console.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="FlagManager.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
+    <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="Include\easy_encryption\Base64.cpp" />
     <ClCompile Include="Include\glad\glad.c" />
     <ClCompile Include="Include\ImGui\imgui.cpp" />
     <ClCompile Include="Include\ImGui\imgui_demo.cpp" />
@@ -146,18 +228,22 @@
     <ClCompile Include="Include\ImGui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="Include\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Include\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Program.cpp" />
+    <ClCompile Include="ProgramManager.cpp" />
+    <ClCompile Include="Quad.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SharedEngineData.cpp" />
     <ClCompile Include="Speno.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="EngineData.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="PerformanceMonitor.h" />
-    <ClInclude Include="Quad.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Shader\denoising_functions.glsl" />
-    <ClInclude Include="Shader\noise.glsl" />
+    <ClCompile Include="SSBOmanager.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="Timing.cpp" />
+    <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="UBOmanager.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
@@ -167,20 +253,107 @@
     <CopyFileToFolders Include="Binary\glfw3.dll">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_core.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_cpu.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_cuda.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_hip.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_sycl.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_sycl_xehpg.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Binary\OpenImageDenoise_device_sycl_xelp.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="packages.config" />
-    <None Include="Shader\denoiser.glsl" />
+    <None Include="Shader\atmosphere.frag" />
+    <None Include="Shader\atmosphere_data.glsl" />
+    <None Include="Shader\bvh_heatmap_calculation.frag">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='PublicRelease|x64'">false</ExcludedFromBuild>
+    </None>
+    <None Include="Shader\camera.glsl" />
+    <None Include="Shader\color_functions.glsl" />
     <None Include="Shader\defines.glsl" />
-    <None Include="Shader\functions.glsl" />
-    <None Include="Shader\intersections.glsl" />
-    <None Include="Shader\main.glsl" />
-    <None Include="Shader\output.glsl" />
-    <None Include="Shader\pathtracing.glsl" />
-    <None Include="Shader\postprocess.glsl" />
+    <None Include="Shader\denoiser2.frag" />
+    <None Include="Shader\denoiser3.frag" />
+    <None Include="Shader\denoiser4.frag" />
+    <None Include="Shader\denoiser5.frag" />
+    <None Include="Shader\denoiser6.frag" />
+    <None Include="Shader\denoiser7.frag" />
+    <None Include="Shader\denoiser8.frag" />
+    <None Include="Shader\denoising_util.glsl" />
+    <None Include="Shader\pathtracing.frag" />
     <None Include="Shader\random.glsl" />
+    <None Include="Shader\noise.glsl" />
+    <None Include="Shader\hit.glsl" />
+    <None Include="Shader\intersection_functions.glsl" />
+    <None Include="Shader\pathtracing_functions.glsl" />
+    <None Include="Shader\postprocess.frag" />
+    <None Include="Shader\reprojection.frag" />
+    <None Include="Shader\scene.glsl" />
+    <None Include="Shader\shared_engine_data.glsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shader\default.frag">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shader\default.vert">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shader\loading_screen.frag">
+      <FileType>Document</FileType>
+    </None>
     <None Include="Shader\stbn.glsl" />
-    <None Include="Shader\structures.glsl" />
-    <None Include="Shader\tonemap.glsl" />
-    <None Include="Shader\vertex.glsl" />
+    <None Include="Shader\storage.frag" />
+    <None Include="Shader\denoiser.frag" />
+    <None Include="Shader\test.glsl" />
+    <None Include="Shader\variance_estimation.frag">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="Shader\wavelength.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AABB.h" />
+    <ClInclude Include="Atmosphere.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="BVH.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Console.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="FlagManager.h" />
+    <ClInclude Include="Flags.h" />
+    <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="GUI.h" />
+    <ClInclude Include="Material.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Program.h" />
+    <ClInclude Include="ProgramManager.h" />
+    <ClInclude Include="Quad.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="SharedEngineData.h" />
+    <ClInclude Include="SSBOmanager.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="Timing.h" />
+    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="UBOmanager.h" />
+    <ClInclude Include="Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="version.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

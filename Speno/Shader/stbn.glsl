@@ -1,69 +1,152 @@
-void setupSTBN() {
-    stbn.c = ivec2(gl_FragCoord.xy) % stbn_resolution.xy;
-    uvec2 in_grid = uvec2(gl_FragCoord.xy) / stbn_resolution.xy;
-    uint grid_number = in_grid.x + in_grid.y * stbn_resolution.x;
-    uint first_layer = (frame + grid_number) % stbn_resolution.z;
-    stbn.cscalar = first_layer;
-    stbn.cvec1 = first_layer;
-    stbn.cvec2 = first_layer;
-    stbn.cvec3 = first_layer;
-    stbn.cunitvec1 = first_layer;
-    stbn.cunitvec2 = first_layer;
-    stbn.cunitvec3 = first_layer;
-    stbn.cunitvec3_cosine = first_layer;
-    stbn.cunitvec3_hdri = first_layer;
+layout(bindless_sampler) uniform sampler2DArray stbn_scalar;
+layout(bindless_sampler) uniform sampler2DArray stbn_vec1;
+layout(bindless_sampler) uniform sampler2DArray stbn_vec2;
+layout(bindless_sampler) uniform sampler2DArray stbn_vec3;
+layout(bindless_sampler) uniform sampler2DArray stbn_unitvec1;
+layout(bindless_sampler) uniform sampler2DArray stbn_unitvec2;
+layout(bindless_sampler) uniform sampler2DArray stbn_unitvec3;
+layout(bindless_sampler) uniform sampler2DArray stbn_unitvec3_cosine;
+
+float getRandomScalar(int layer) {
+	float v = texelFetch(stbn_scalar, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).r;
+	    
+	return v;
+}
+	
+float getRandomVec1(int layer) {
+	float v = texelFetch(stbn_vec1, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).r;
+	    
+	return v;
+}
+	
+vec2 getRandomVec2(int layer) {
+	vec2 v = texelFetch(stbn_vec2, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).rg;
+	    
+	return v;
+}
+	
+vec3 getRandomVec3(int layer) {
+	vec3 v = texelFetch(stbn_vec3, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).rgb;
+	   
+	return v;
+}
+	
+float getRandomUnitvec1(int layer) {
+	float v = texelFetch(stbn_unitvec1, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).r;
+	    
+	return v;
+}
+	
+vec2 getRandomUnitvec2(int layer) {
+	vec2 v = texelFetch(stbn_unitvec2, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).rg;
+	    
+	v = 2.0 * v - 1.0;
+	
+	return v;
+}
+	
+vec3 getRandomUnitvec3(int layer) {
+	vec3 v = texelFetch(stbn_unitvec3, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0).rgb;
+	    
+	v = 2.0 * v - 1.0;
+	
+	return v;
+}
+	
+vec4 getRandomUnitvec3cosine(int layer) {
+	vec4 v = texelFetch(stbn_unitvec3_cosine, ivec3(gl_FragCoord.xy, layer + frame) % 128, 0);
+	    
+	v.xyz = 2.0 * v.xyz - 1.0;
+	
+	return v;
 }
 
-float getScalarSTBN() {
-    float v = texelFetch(stbn_scalar, ivec3(stbn.c, stbn.cscalar), 0).r;
-    stbn.cscalar = (stbn.cscalar + 1u) % stbn_resolution.z;
-    return v;
-}
-
-float getVec1STBN() {
-    float v = texelFetch(stbn_vec1, ivec3(stbn.c, stbn.cvec1), 0).r;
-    stbn.cvec1 = (stbn.cvec1 + 1u) % stbn_resolution.z;
-    return v;
-}
-
-vec2 getVec2STBN() {
-    vec2 v = texelFetch(stbn_vec2, ivec3(stbn.c, stbn.cvec2), 0).rg;
-    stbn.cvec2 = (stbn.cvec2 + 1u) % stbn_resolution.z;
-    return v;
-}
-
-vec3 getVec3STBN() {
-    vec3 v = texelFetch(stbn_vec3, ivec3(stbn.c, stbn.cvec3), 0).rgb;
-    stbn.cvec3 = (stbn.cvec3 + 1u) % stbn_resolution.z;
-    return v;
-}
-
-float getUnitvec1STBN() {
-    float v = texelFetch(stbn_unitvec1, ivec3(stbn.c, stbn.cunitvec1), 0).r;
-    stbn.cunitvec1 = (stbn.cunitvec1 + 1u) % stbn_resolution.z;
-    return v;
-}
-
-vec2 getUnitvec2STBN() {
-    vec2 v = texelFetch(stbn_unitvec2, ivec3(stbn.c, stbn.cunitvec2), 0).rg;
-    stbn.cunitvec2 = (stbn.cunitvec2 + 1u) % stbn_resolution.z;
-    return v;
-}
-
-vec3 getUnitvec3STBN() {
-    vec3 v = texelFetch(stbn_unitvec3, ivec3(stbn.c, stbn.cunitvec3), 0).rgb;
-    stbn.cunitvec3 = (stbn.cunitvec3 + 1u) % stbn_resolution.z;
-    return v;
-}
-
-vec4 getUnitvec3cosineSTBN() {
-    vec4 v = texelFetch(stbn_unitvec3_cosine, ivec3(stbn.c, stbn.cunitvec3_cosine), 0);
-    stbn.cunitvec3_cosine = (stbn.cunitvec3_cosine + 1u) % stbn_resolution.z;
-    return v;
-}
-
-vec4 getUnitvec3hdriSTBN() {
-    vec4 v = texelFetch(stbn_unitvec3_hdri, ivec3(stbn.c, stbn.cunitvec3_hdri), 0);
-    stbn.cunitvec3_cosine = (stbn.cunitvec3_hdri + 1u) % stbn_resolution.z;
-    return v;
-}
+//struct STBNSTATE {
+//    ivec2 coord;
+//    int layer;
+//    int offset_scalar;
+//    int offset_vec1;
+//    int offset_vec2;
+//    int offset_vec3;
+//    int offset_unitvec1;
+//    int offset_unitvec2;
+//    int offset_unitvec3;
+//    int offset_unitvec3_cosine;
+//} stbn_state;
+//
+//void setupSTBN() {
+//    stbn_state.coord = ivec2(gl_FragCoord.xy) % 128;
+//
+//    int first_layer = frame % 128;
+//    stbn_state.layer = first_layer;
+//    stbn_state.offset_scalar = first_layer;
+//    stbn_state.offset_vec1 = first_layer;
+//    stbn_state.offset_vec2 = first_layer;
+//    stbn_state.offset_vec3 = first_layer;
+//    stbn_state.offset_unitvec1 = first_layer;
+//    stbn_state.offset_unitvec2 = first_layer;
+//    stbn_state.offset_unitvec3 = first_layer;
+//    stbn_state.offset_unitvec3_cosine = first_layer;
+//}
+//
+//float getRandomScalar() {
+//    int layer = stbn_state.layer + stbn_state.offset_scalar++;
+//    float v = texelFetch(stbn_scalar, ivec3(stbn_state.coord, layer), 0).r;
+//    
+//    return v;
+//}
+//
+//float getRandomVec1() {
+//    int layer = stbn_state.layer + stbn_state.offset_vec1++;
+//    float v = texelFetch(stbn_vec1, ivec3(stbn_state.coord, layer), 0).r;
+//    
+//    return v;
+//}
+//
+//vec2 getRandomVec2() {
+//    int layer = stbn_state.layer + stbn_state.offset_vec2++;
+//    vec2 v = texelFetch(stbn_vec2, ivec3(stbn_state.coord, layer), 0).rg;
+//    
+//    return v;
+//}
+//
+//vec3 getRandomVec3() {
+//    int layer = stbn_state.layer + stbn_state.offset_vec3++;
+//    vec3 v = texelFetch(stbn_vec3, ivec3(stbn_state.coord, layer), 0).rgb;
+//   
+//    return v;
+//}
+//
+//float getRandomUnitvec1() {
+//    int layer = stbn_state.layer + stbn_state.offset_unitvec1++;
+//    float v = texelFetch(stbn_unitvec1, ivec3(stbn_state.coord, layer), 0).r;
+//    
+//    return v;
+//}
+//
+//vec2 getRandomUnitvec2() {
+//    int layer = stbn_state.layer + stbn_state.offset_unitvec2++;
+//    vec2 v = texelFetch(stbn_unitvec2, ivec3(stbn_state.coord, layer), 0).rg;
+//    
+//    v = 2.0 * v - 1.0;
+//
+//    return v;
+//}
+//
+//vec3 getRandomUnitvec3() {
+//    int layer = stbn_state.layer + stbn_state.offset_unitvec3++;
+//    vec3 v = texelFetch(stbn_unitvec3, ivec3(stbn_state.coord, layer), 0).rgb;
+//    
+//    v = 2.0 * v - 1.0;
+//
+//    return v;
+//}
+//
+//vec4 getRandomUnitvec3cosine() {
+//    int layer = stbn_state.layer + stbn_state.offset_unitvec3_cosine++;
+//    vec4 v = texelFetch(stbn_unitvec3_cosine, ivec3(stbn_state.coord, layer), 0);
+//    
+//    v.xyz = 2.0 * v.xyz - 1.0;
+//
+//    return v;
+//}

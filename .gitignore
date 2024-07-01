@@ -34,6 +34,9 @@ bld/
 [Ll]ogs/
 STBN/
 [Tt]exture/
+[Mm]eshes/
+BinaryShaders/
+EncryptedShaders/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

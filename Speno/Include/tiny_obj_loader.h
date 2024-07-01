@@ -214,7 +214,7 @@ namespace tinyobj {
 
         // PBR extension
         // http://exocortex.com/blog/extending_wavefront_mtl_to_support_pbr
-        real_t roughness;            // [0, 1] default 0
+        real_t roughness;            // [0, 1] default 1
         real_t metallic;             // [0, 1] default 0
         real_t sheen;                // [0, 1] default 0
         real_t clearcoat_thickness;  // [0, 1] default 0
@@ -1411,7 +1411,7 @@ namespace tinyobj {
         material->alpha_texname = "";
         for (int i = 0; i < 3; i++) {
             material->ambient[i] = static_cast<real_t>(0.0);
-            material->diffuse[i] = static_cast<real_t>(0.0);
+            material->diffuse[i] = static_cast<real_t>(0.73);
             material->specular[i] = static_cast<real_t>(0.0);
             material->transmittance[i] = static_cast<real_t>(0.0);
             material->emission[i] = static_cast<real_t>(0.0);
@@ -1421,7 +1421,7 @@ namespace tinyobj {
         material->shininess = static_cast<real_t>(1.0);
         material->ior = static_cast<real_t>(1.0);
 
-        material->roughness = static_cast<real_t>(0.0);
+        material->roughness = static_cast<real_t>(1.0);
         material->metallic = static_cast<real_t>(0.0);
         material->sheen = static_cast<real_t>(0.0);
         material->clearcoat_thickness = static_cast<real_t>(0.0);

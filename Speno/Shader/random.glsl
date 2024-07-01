@@ -1,33 +1,27 @@
-float random8BitFloat() {
-    return getScalarSTBN();
-}
+highp uint hq_random_seed;
 
-float randomFloat() {
-    return getVec1STBN();
-}
+void setupHQRandomSeed() {
+    uint pixel_index = uint(gl_FragCoord.x) + uint(gl_FragCoord.y) * uint(resolution.x);
+    uint seed = pixel_index * (frame + 1u);
 
-vec2 randomVec2() {
-    return getVec2STBN();
-}
+    seed = (seed ^ 61) ^ (seed >> 16);
+    seed *= 9;
+    seed = seed ^ (seed >> 4);
+    seed *= 0x27d4eb2d;
+    seed = seed ^ (seed >> 15);
 
-vec3 randomVec3() {
-    return getVec3STBN();
-}
-
-/*void setRandomSeed() {
-    random_seed = uint(gl_FragCoord.x) + uint(gl_FragCoord.y) * uint(resolution.x);
-    random_seed *= frame + 1u;
+    hq_random_seed = (seed * 336343633u) | 1;
 }
 
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
 highp uint randomUint() {
-    random_seed += (random_seed << 10u);
-    random_seed ^= (random_seed >>  6u);
-    random_seed += (random_seed <<  3u);
-    random_seed ^= (random_seed >> 11u);
-    random_seed += (random_seed << 15u);
+    hq_random_seed += (hq_random_seed << 10u);
+    hq_random_seed ^= (hq_random_seed >>  6u);
+    hq_random_seed += (hq_random_seed <<  3u);
+    hq_random_seed ^= (hq_random_seed >> 11u);
+    hq_random_seed += (hq_random_seed << 15u);
 
-    return random_seed;
+    return hq_random_seed;
 }
 
 highp float floatConstruct(highp uint m) {
@@ -41,14 +35,17 @@ highp float floatConstruct(highp uint m) {
     return f - 1.0;                        // Range [0:1]
 }
 
-float randomFloat() {
+float randomFloatHQ() {
     return floatConstruct(randomUint());
 }
 
-vec2 randomVec2() {
-    return vec2(randomFloat(), randomFloat());
+/*highp uint xorshift() {
+    hq_random_seed ^= hq_random_seed << 13;
+    hq_random_seed ^= hq_random_seed >> 17;
+    hq_random_seed ^= hq_random_seed << 15;
+    return hq_random_seed;
 }
 
-vec3 randomVec3() {
-    return vec3(randomFloat(), randomFloat(), randomFloat());
+float randomFloatHQ() {
+    return (xorshift() & 0xFFFFFF) / 16777216.0;   
 }*/
